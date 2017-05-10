@@ -1,6 +1,7 @@
 package org.poi.spring.config;
 
 import org.poi.spring.Assert;
+import org.poi.spring.component.ExcelHeader;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.ArrayList;
@@ -48,6 +49,8 @@ public class ExcelWorkBookBeandefinition implements InitializingBean {
      * Field属性的全部定义
      */
     private List<ColumnDefinition> columnDefinitions = new ArrayList<>();
+
+    private ExcelHeader excelHeader;
 
     public int getColumnWidth() {
         return columnWidth;

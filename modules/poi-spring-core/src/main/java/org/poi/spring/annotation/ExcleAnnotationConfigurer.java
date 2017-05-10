@@ -66,9 +66,9 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
                 if (attributesMap.get("sheetIndex") != null) {
                     eligibleBeanDefinition.getPropertyValues().addPropertyValue("sheetIndex", attributesMap.get("sheetIndex"));
                 }
-                //                if (attributesMap.get("width") != null) {
-                //                    eligibleBeanDefinition.getPropertyValues().addPropertyValue("columnWidth", attributesMap.get("width"));
-                //                }
+                if (attributesMap.get("width") != null) {
+                    eligibleBeanDefinition.getPropertyValues().addPropertyValue("columnWidth", attributesMap.get("width"));
+                }
                 //                //参数信息
                 //                Map<String, Object> defaultProperties = addDefaultProperties(attributesMap);
                 //                eligibleBeanDefinition.getPropertyValues().addPropertyValue("defaultProperties", defaultProperties);

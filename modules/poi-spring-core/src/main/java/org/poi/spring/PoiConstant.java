@@ -38,7 +38,6 @@ public abstract class PoiConstant {
     public static final String FONT = "font";
     public static final String WRAPTEXT = "wraptext";
 
-
     public static final class Column {
         public static final boolean COLUMN_REQUIRED = false;
         public static final String regex = "";

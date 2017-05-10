@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.poi.spring.ReflectUtil;
+import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.component.ExcleContext;
 import org.poi.spring.component.ExcleConverter;
 import org.poi.spring.config.ColumnDefinition;
@@ -18,6 +19,7 @@ import org.poi.spring.service.result.ExcelExportResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,18 +34,30 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     @Autowired
     private ExcleConverter excleConverter;
 
+    @Autowired
+    private ExcelHeader excelHeader;
 
     @Override
     public ExcelExportResult createExcel(List<?> beans) {
         ExcelExportResult exportResult = null;
         if (CollectionUtils.isNotEmpty(beans)) {
             Class<?> beanClass = beans.get(0).getClass();
-            if (!excleContext.exists(beanClass)) {
-                throw new ExcelException("未找到匹配的模板");
-            }
-            //从注册信息中获取Bean信息
-            ExcelWorkBookBeandefinition excelWorkBookBeandefinition = excleContext.getExcelWorkBookBeandefinition(beanClass);
+            ExcelWorkBookBeandefinition excelWorkBookBeandefinition = getExcelWorkBookBeandefinition(beanClass);
+            //创建表格
+            exportResult = doCreateExcel(excelWorkBookBeandefinition, beans);
+        }
+        return exportResult;
+    }
 
+
+    @Override
+    public ExcelExportResult createTemplate(Object bean) {
+        ExcelExportResult exportResult = null;
+        if (bean != null) {
+            Class<?> beanClass = bean.getClass();
+            ExcelWorkBookBeandefinition excelWorkBookBeandefinition = getExcelWorkBookBeandefinition(beanClass);
+            List<Object> beans = new ArrayList<>();
+            beans.add(bean);
             //创建表格
             exportResult = doCreateExcel(excelWorkBookBeandefinition, beans);
         }
@@ -114,5 +128,13 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
             cell.setCellValue(valueStr);
         }
+    }
+
+    private ExcelWorkBookBeandefinition getExcelWorkBookBeandefinition(Class<?> beanClass) {
+        if (!excleContext.exists(beanClass)) {
+            throw new ExcelException("未找到匹配的模板--" + beanClass.getName());
+        }
+        //从注册信息中获取Bean信息
+        return excleContext.getExcelWorkBookBeandefinition(beanClass);
     }
 }
