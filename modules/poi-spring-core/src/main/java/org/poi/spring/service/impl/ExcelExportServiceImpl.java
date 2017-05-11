@@ -73,7 +73,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         Sheet sheet = workbook.createSheet(excelWorkBookBeandefinition.getSheetName());
 
         //初始化文件头
-        docreateHeader(sheet, excelWorkBookBeandefinition, beans);
+        doCreateHeader(sheet, excelWorkBookBeandefinition, beans);
         //设置title
         createTitle(excelWorkBookBeandefinition, sheet, workbook);
 
@@ -93,7 +93,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
      * @param excelWorkBookBeandefinition
      * @param beans
      */
-    private void docreateHeader(Sheet sheet, ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
+    private void doCreateHeader(Sheet sheet, ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
         if (excelHeader != null && excelHeader instanceof TemplateExcleHeader) {
             Row row = sheet.createRow((short) 0);
             Cell cell = row.createCell((short) 0);
