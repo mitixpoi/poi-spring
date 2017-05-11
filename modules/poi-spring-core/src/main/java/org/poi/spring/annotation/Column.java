@@ -1,5 +1,7 @@
 package org.poi.spring.annotation;
 
+import org.poi.spring.PoiConstant;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,11 +18,15 @@ public @interface Column {
 
     String title();
 
+    int width() default PoiConstant.DEFAULT_WIDTH;
+
+
+
     boolean required() default false;
 
-    String regex() default "";
+    String regex() default PoiConstant.EMPTY_STRING;
 
-    int width() default 20;
+
 
     Align align() default Align.GENERAL;
 

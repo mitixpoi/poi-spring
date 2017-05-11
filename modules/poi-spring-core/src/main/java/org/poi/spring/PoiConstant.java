@@ -12,7 +12,8 @@ public abstract class PoiConstant {
 
     public static final String EMPTY_STRING = "";
     public static final String CLASS_NAME_SUFFIX = ".EXCLE";
-
+    public static final int DEFAULT_WIDTH_R = 1024;
+    public static final int DEFAULT_WIDTH = 4;
 
     public static final String TRUE_VALUE = "true";
     public static final String FALSE_VALUE = "false";
@@ -38,12 +39,22 @@ public abstract class PoiConstant {
     public static final String FONT = "font";
     public static final String WRAPTEXT = "wraptext";
 
-    public static final class Column {
+    public static final class Excle {
+        public static final String sheetName = "";
+        public static final int sheetIndex = 0;
         public static final boolean COLUMN_REQUIRED = false;
         public static final String regex = "";
-        public static final int with = 20;
-        public static final String sheetName = "sheet_1";
-        public static final int sheetIndex = 1;
+        public static final Align align = Align.GENERAL;
+        public static final int font = 12;
+        public static final boolean wraptext = true;
+        public static final String defauleValue = "";
+    }
+
+    public static final class Column {
+        public static final String sheetName = "";
+        public static final int sheetIndex = 0;
+        public static final boolean COLUMN_REQUIRED = false;
+        public static final String regex = "";
         public static final Align align = Align.GENERAL;
         public static final int font = 12;
         public static final boolean wraptext = true;

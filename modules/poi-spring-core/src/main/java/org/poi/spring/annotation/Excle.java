@@ -1,5 +1,6 @@
 package org.poi.spring.annotation;
 
+import org.poi.spring.PoiConstant;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Documented;
@@ -19,11 +20,17 @@ public @interface Excle {
 
     String name();
 
-    String sheetName() default "sheet_1";
+    String sheetName() default "";
 
-    short sheetIndex() default 1;
+    short sheetIndex() default 0;
 
-    int width() default 20;
+    int width() default PoiConstant.DEFAULT_WIDTH ;
+
+
+
+
+
+
 
     Align align() default Align.GENERAL;
 

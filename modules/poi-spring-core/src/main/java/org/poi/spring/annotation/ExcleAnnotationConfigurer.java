@@ -67,7 +67,14 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
                     eligibleBeanDefinition.getPropertyValues().addPropertyValue("sheetIndex", attributesMap.get("sheetIndex"));
                 }
                 if (attributesMap.get("width") != null) {
-                    eligibleBeanDefinition.getPropertyValues().addPropertyValue("columnWidth", attributesMap.get("width"));
+                    try {
+                        int width = Integer.valueOf(String.valueOf(attributesMap.get("width"))) * PoiConstant.DEFAULT_WIDTH_R;
+                        eligibleBeanDefinition.getPropertyValues().addPropertyValue("columnWidth", width);
+                    } catch (Exception e) {
+                        ExcelException exception = new ExcelException("设置宽度失败 excleName=" + attributesMap.get("name"));
+                        exception.initCause(e);
+                        throw exception;
+                    }
                 }
                 //                //参数信息
                 //                Map<String, Object> defaultProperties = addDefaultProperties(attributesMap);
@@ -99,7 +106,7 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         columnDefinition.setTitle(String.valueOf(attributesMap.get("title")));
         columnDefinition.setRegex(String.valueOf(attributesMap.get("regex")));
         columnDefinition.setRequired((Boolean) attributesMap.get("required"));
-        //        columnDefinition.setColumnWidth((Integer) attributesMap.get("width"));
+        columnDefinition.setColumnWidth((Integer) attributesMap.get("width") * PoiConstant.DEFAULT_WIDTH_R);
         //        if (!PoiConstant.EMPTY_STRING.equals(attributesMap.get("defauleValue"))) {
         //            columnDefinition.setDefaultValue(String.valueOf(attributesMap.get("defauleValue")));
         //        }

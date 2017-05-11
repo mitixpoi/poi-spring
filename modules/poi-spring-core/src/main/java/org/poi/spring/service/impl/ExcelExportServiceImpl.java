@@ -74,8 +74,9 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         //初始化文件头
         docreateHeader(sheet, excelWorkBookBeandefinition, beans);
+        //设置title
+        createTitle(excelWorkBookBeandefinition, sheet, workbook);
 
-        Row titleRow = createTitle(excelWorkBookBeandefinition, sheet, workbook);
         //如果listBean不为空,创建数据行
         if (beans != null) {
             createRows(excelWorkBookBeandefinition, sheet, beans);
@@ -112,22 +113,22 @@ public class ExcelExportServiceImpl implements ExcelExportService {
      * @param workbook
      * @return
      */
-    private Row createTitle(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, Sheet sheet, Workbook workbook) {
+    private void createTitle(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, Sheet sheet, Workbook workbook) {
         //标题索引号
         int titleIndex = sheet.getPhysicalNumberOfRows();
         Row titleRow = sheet.createRow(titleIndex);
         List<ColumnDefinition> columnDefinitions = excelWorkBookBeandefinition.getColumnDefinitions();
         for (int i = 0; i < columnDefinitions.size(); i++) {
             ColumnDefinition columnDefinition = columnDefinitions.get(i);
-            //            if (columnDefinition.getColumnWidth() != null) {
-            //                sheet.setColumnWidth(i, columnDefinition.getColumnWidth());
-            //            }
+            //设置宽度 都是在表头中处理的
+            if (columnDefinition.getColumnWidth() != null) {
+                sheet.setColumnWidth(i, columnDefinition.getColumnWidth());
+            }
             Cell cell = titleRow.createCell(i);
             //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
             //excleConverter.canConvert(String.class, columnDefinition.getTitle().getClass());
             cell.setCellValue(columnDefinition.getTitle());
         }
-        return titleRow;
     }
 
     @Override

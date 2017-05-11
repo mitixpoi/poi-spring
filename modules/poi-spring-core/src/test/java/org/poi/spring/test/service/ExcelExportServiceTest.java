@@ -1,10 +1,8 @@
 package org.poi.spring.test.service;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.poi.spring.component.TemplateExcleHeader;
-import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.service.ExcelExportService;
 import org.poi.spring.service.impl.ExcelExportServiceImpl;
 import org.poi.spring.service.result.ExcelExportResult;
@@ -34,6 +32,35 @@ public class ExcelExportServiceTest {
     @Test
     public void createTemplateExceltest() {
         Car car1 = new Car("info1", "22");
+        ExcelExportResult result = ((ExcelExportServiceImpl) excelExportService).addExcelHeader(new TemplateExcleHeader() {
+            @Override
+            public String getHeader() {
+                return "汽车销售表模版";
+            }
+        }).createTemplateExcel(car1);
+
+        try {
+            FileOutputStream fileOut = new FileOutputStream("d:/workbooktmp.xlsx");
+            result.build().write(fileOut);
+            fileOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                result.getWorkbook().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    /**
+     * 测试模版导出
+     */
+    @Test
+    public void createExceltest() {
+        Car car1 = new Car("info1", "22");
         Car car2 = new Car("info2", "gg");
         Car car3 = new Car("info3", "asf");
         Car car4 = new Car("info4", "aa");
@@ -43,16 +70,10 @@ public class ExcelExportServiceTest {
         cars.add(car3);
         cars.add(car4);
 
-        ExcelExportResult result = ((ExcelExportServiceImpl) excelExportService).addExcelHeader(new TemplateExcleHeader() {
-            @Override
-            public String getHeader() {
-                return "汽车销售表模版";
-            }
-        }).createTemplateExcel(car1);
-
+        ExcelExportResult result = ((ExcelExportServiceImpl) excelExportService).createExcel(cars);
 
         try {
-            FileOutputStream fileOut = new FileOutputStream("d:/workbook.xlsx");
+            FileOutputStream fileOut = new FileOutputStream("d:/workbook123.xlsx");
             result.build().write(fileOut);
             fileOut.close();
         } catch (IOException e) {

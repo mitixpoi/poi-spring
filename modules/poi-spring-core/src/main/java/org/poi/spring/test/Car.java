@@ -7,13 +7,13 @@ import org.poi.spring.annotation.Excle;
 /**
  * Created by oldflame on 2017/4/8.
  */
-@Excle(name = "导出文件1")
+@Excle(name = "导出文件1",width = 2)
 public class Car {
 
-    @Column(title = "名字",width = 10)
+    @Column(title = "名字",width = 6)
     public String name;
 
-    @Column(title = "车龄",width = 10)
+    @Column(title = "车龄")
     private String age;
 
     public Car(){

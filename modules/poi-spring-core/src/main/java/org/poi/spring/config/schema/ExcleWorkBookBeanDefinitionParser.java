@@ -2,6 +2,7 @@ package org.poi.spring.config.schema;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.util.CellUtil;
+import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.PoiConstant;
@@ -45,7 +46,6 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
         beanDefinition.setBeanClass(beanClass);
         beanDefinition.setLazyInit(false);
 
-
         //excleName
         if (!element.hasAttribute(PoiConstant.EXCLE_NAME_ATTRIBUTE)) {
             throw new ExcelException("excleworkbook excle-name has empty");
@@ -75,7 +75,15 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
             beanDefinition.getPropertyValues().addPropertyValue("sheetIndex", element.getAttribute(PoiConstant.SHEET_INDEX_ATTRIBUTE));
         }
         if (element.hasAttribute(PoiConstant.DEFAULT_COLUMN_WIDTH_ATTRIBUTE)) {
-            beanDefinition.getPropertyValues().addPropertyValue("columnWidth", element.getAttribute(PoiConstant.DEFAULT_COLUMN_WIDTH_ATTRIBUTE));
+            try {
+                int width = Integer.valueOf(element.getAttribute(PoiConstant.DEFAULT_COLUMN_WIDTH_ATTRIBUTE)) * PoiConstant.DEFAULT_WIDTH_R;
+                beanDefinition.getPropertyValues().addPropertyValue("columnWidth", width);
+            } catch (Exception e) {
+                logger.error("设置宽度失败 excleName=" + excleName);
+                ExcelException exception = new ExcelException("设置宽度失败 excleName=" + excleName);
+                exception.initCause(e);
+                throw exception;
+            }
         }
         //参数信息
         Map<String, Object> defaultProperties = addDefaultProperties(element);
@@ -174,7 +182,7 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
         }
         if (columnElement.hasAttribute(PoiConstant.COLUMN_WIDTH_ATTRIBUTE)) {
             try {
-                columnDefinition.setColumnWidth(Integer.parseInt(columnElement.getAttribute(PoiConstant.COLUMN_WIDTH_ATTRIBUTE)));
+                columnDefinition.setColumnWidth(Integer.parseInt(columnElement.getAttribute(PoiConstant.COLUMN_WIDTH_ATTRIBUTE)) * PoiConstant.DEFAULT_WIDTH_R);
             } catch (Exception e) {
                 throw new ExcelException("excleworkbook column-width has error excleName=" + excleName + " column-name=" + name);
             }
