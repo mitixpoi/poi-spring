@@ -10,10 +10,10 @@ import org.poi.spring.annotation.Excle;
 @Excle(name = "导出文件1")
 public class Car {
 
-    @Column(title = "111111",width = 10)
+    @Column(title = "名字",width = 10)
     public String name;
 
-    @Column(title = "222222",width = 10)
+    @Column(title = "车龄",width = 10)
     private String age;
 
     public Car(){

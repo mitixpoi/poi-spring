@@ -25,7 +25,7 @@ public interface ExcelExportService {
      * @param bean
      * @return
      */
-    ExcelExportResult createTemplate(Object bean);
+    ExcelExportResult createTemplateExcel(Object bean);
 
     /**
      * 现有表格进行数据追加

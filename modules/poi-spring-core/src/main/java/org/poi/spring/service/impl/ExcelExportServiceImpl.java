@@ -5,17 +5,21 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.component.ExcleContext;
 import org.poi.spring.component.ExcleConverter;
+import org.poi.spring.component.ReportExcleHeader;
+import org.poi.spring.component.TemplateExcleHeader;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.exception.ExcelException;
 import org.poi.spring.service.ExcelExportService;
 import org.poi.spring.service.result.ExcelExportResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +31,7 @@ import java.util.List;
  */
 @Service
 public class ExcelExportServiceImpl implements ExcelExportService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelExportServiceImpl.class);
 
     @Autowired
     private ExcleContext excleContext;
@@ -34,7 +39,6 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     @Autowired
     private ExcleConverter excleConverter;
 
-    @Autowired
     private ExcelHeader excelHeader;
 
     @Override
@@ -49,9 +53,8 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         return exportResult;
     }
 
-
     @Override
-    public ExcelExportResult createTemplate(Object bean) {
+    public ExcelExportResult createTemplateExcel(Object bean) {
         ExcelExportResult exportResult = null;
         if (bean != null) {
             Class<?> beanClass = bean.getClass();
@@ -69,6 +72,9 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         //直接使用sheetname  在初始化的时候已经设置了名字
         Sheet sheet = workbook.createSheet(excelWorkBookBeandefinition.getSheetName());
 
+        //初始化文件头
+        docreateHeader(sheet, excelWorkBookBeandefinition, beans);
+
         Row titleRow = createTitle(excelWorkBookBeandefinition, sheet, workbook);
         //如果listBean不为空,创建数据行
         if (beans != null) {
@@ -76,6 +82,26 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         }
         ExcelExportResult exportResult = new ExcelExportResult(excelWorkBookBeandefinition, sheet, workbook, this);
         return exportResult;
+    }
+
+    /**
+     * 定制表头
+     * 极简模式和自定义模式
+     *
+     * @param sheet
+     * @param excelWorkBookBeandefinition
+     * @param beans
+     */
+    private void docreateHeader(Sheet sheet, ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
+        if (excelHeader != null && excelHeader instanceof TemplateExcleHeader) {
+            Row row = sheet.createRow((short) 0);
+            Cell cell = row.createCell((short) 0);
+            cell.setCellValue(((TemplateExcleHeader) excelHeader).getHeader());
+            int maxSize = excelWorkBookBeandefinition.getColumnDefinitions().size() - 1;
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxSize >= 0 ? maxSize : 0));
+        } else if (excelHeader != null && excelHeader instanceof ReportExcleHeader) {
+            ((ReportExcleHeader) excelHeader).buildHeader(sheet, excelWorkBookBeandefinition, beans);
+        }
     }
 
     /**
@@ -136,5 +162,10 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         }
         //从注册信息中获取Bean信息
         return excleContext.getExcelWorkBookBeandefinition(beanClass);
+    }
+
+    public ExcelExportServiceImpl addExcelHeader(ExcelHeader excelHeader) {
+        this.excelHeader = excelHeader;
+        return this;
     }
 }
