@@ -19,13 +19,6 @@ public interface ExcelExportService {
      */
     ExcelExportResult createExcel(List<?> beans);
 
-    /**
-     * 创建Excle模板表格
-     *
-     * @param bean
-     * @return
-     */
-    ExcelExportResult createTemplateExcel(Object bean);
 
     /**
      * 现有表格进行数据追加

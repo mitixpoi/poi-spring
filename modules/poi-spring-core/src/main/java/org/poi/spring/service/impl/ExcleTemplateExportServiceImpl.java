@@ -1,6 +1,5 @@
 package org.poi.spring.service.impl;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -15,27 +14,28 @@ import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.component.ExcleContext;
 import org.poi.spring.component.ExcleConverter;
-import org.poi.spring.component.ReportExcleHeader;
 import org.poi.spring.component.TemplateExcleHeader;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.exception.ExcelException;
-import org.poi.spring.service.ExcelExportService;
+import org.poi.spring.service.ExcleTemplateExportService;
 import org.poi.spring.service.result.ExcelExportResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Hong.LvHang on 2017-05-08.
+ * Created by Hong.LvHang on 2017-05-12.
  */
 @Service
-public class ExcelExportServiceImpl implements ExcelExportService {
+public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelExportServiceImpl.class);
 
     @Autowired
@@ -47,11 +47,13 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     private ExcelHeader excelHeader;
 
     @Override
-    public ExcelExportResult createExcel(List<?> beans) {
+    public ExcelExportResult createTemplateExcel(Object bean) {
         ExcelExportResult exportResult = null;
-        if (CollectionUtils.isNotEmpty(beans)) {
-            Class<?> beanClass = beans.get(0).getClass();
+        if (bean != null) {
+            Class<?> beanClass = bean.getClass();
             ExcelWorkBookBeandefinition excelWorkBookBeandefinition = getExcelWorkBookBeandefinition(beanClass);
+            List<Object> beans = new ArrayList<>();
+            beans.add(bean);
             //创建表格
             exportResult = doCreateExcel(excelWorkBookBeandefinition, beans);
         }
@@ -102,8 +104,6 @@ public class ExcelExportServiceImpl implements ExcelExportService {
                 Cell cellMerge = row.createCell(i);
                 CellUtil.setCellStyleProperties(cellMerge, properties);
             }
-        } else if (excelHeader != null && excelHeader instanceof ReportExcleHeader) {
-            ((ReportExcleHeader) excelHeader).buildHeader(sheet, excelWorkBookBeandefinition, beans);
         }
     }
 
@@ -151,7 +151,6 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         }
     }
 
-    @Override
     public void createRows(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, Sheet sheet, List<?> beans) {
         int startRow = sheet.getPhysicalNumberOfRows();
         for (int i = 0; i < beans.size(); i++) {
@@ -188,7 +187,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         return excleContext.getExcelWorkBookBeandefinition(beanClass);
     }
 
-    public ExcelExportServiceImpl addExcelHeader(ExcelHeader excelHeader) {
+    public ExcleTemplateExportServiceImpl addExcelHeader(ExcelHeader excelHeader) {
         this.excelHeader = excelHeader;
         return this;
     }

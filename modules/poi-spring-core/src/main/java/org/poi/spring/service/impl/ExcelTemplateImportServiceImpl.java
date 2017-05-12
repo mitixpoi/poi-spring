@@ -15,7 +15,7 @@ import org.poi.spring.component.ExcleConverter;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.exception.ExcelException;
-import org.poi.spring.service.ExcelImportService;
+import org.poi.spring.service.ExcelTemplateImportService;
 import org.poi.spring.service.result.ExcelImportResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.TypeDescriptor;
@@ -32,7 +32,7 @@ import java.util.Map;
  * Created by Hong.LvHang on 2017-05-09.
  */
 @Service
-public class ExcleImportServiceImpl implements ExcelImportService {
+public class ExcelTemplateImportServiceImpl implements ExcelTemplateImportService {
     @Autowired
     private ExcleContext excleContext;
 
@@ -70,7 +70,7 @@ public class ExcleImportServiceImpl implements ExcelImportService {
             //获取Bean
             List<Object> listBeans = readRows(excelWorkBookBeandefinition, sheet, titleIndex, titleWapperMap, multivalidate);
 
-            result=new ExcelImportResult(listBeans);
+            result = new ExcelImportResult(listBeans);
 
         } catch (IOException | InvalidFormatException e) {
             e.printStackTrace();
