@@ -1,6 +1,9 @@
 package org.poi.spring.annotation;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellUtil;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
@@ -76,9 +79,9 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
                         throw exception;
                     }
                 }
-                //                //参数信息
-                //                Map<String, Object> defaultProperties = addDefaultProperties(attributesMap);
-                //                eligibleBeanDefinition.getPropertyValues().addPropertyValue("defaultProperties", defaultProperties);
+                //参数信息
+                Map<String, Object> defaultProperties = addDefaultProperties(attributesMap);
+                eligibleBeanDefinition.getPropertyValues().addPropertyValue("defaultProperties", defaultProperties);
                 //解析属性上的注解
                 List<ColumnDefinition> columnDefinitions = parseColumnAnnotations(originClass);
                 eligibleBeanDefinition.getPropertyValues().addPropertyValue("columnDefinitions", columnDefinitions);
@@ -111,24 +114,46 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         //            columnDefinition.setDefaultValue(String.valueOf(attributesMap.get("defauleValue")));
         //        }
         //参数信息
-        //        Map<String, Object> properties = addProperties(attributesMap);
-        //        columnDefinition.setProperties(properties);
+        Map<String, Object> properties = addProperties(attributesMap);
+        columnDefinition.setProperties(properties);
         return columnDefinition;
     }
 
     private Map<String, Object> addProperties(Map<String, Object> attributesMap) {
         Map<String, Object> properties = new HashMap<>();
-        addAlignProperties(properties, attributesMap.get("align"));
-        addFontProperties(properties, attributesMap.get("font"));
-        addWrapTextProperties(properties, attributesMap.get("wraptext"));
+        addfgcolorProperties(properties, attributesMap.get("fgcolor"));
+        addBorderProperties(properties, attributesMap.get("border"));
+
+        //        addAlignProperties(properties, attributesMap.get("align"));
+        //        addFontProperties(properties, attributesMap.get("font"));
+        //        addWrapTextProperties(properties, attributesMap.get("wraptext"));
         return properties;
     }
 
     private Map<String, Object> addDefaultProperties(Map<String, Object> attributesMap) {
         Map<String, Object> defaultProperties = new HashMap<>();
-        addAlignProperties(defaultProperties, attributesMap.get("align"));
-        addFontProperties(defaultProperties, attributesMap.get("font"));
+        addfgcolorProperties(defaultProperties, attributesMap.get("fgcolor"));
+        addBorderProperties(defaultProperties, attributesMap.get("border"));
+        //        addAlignProperties(defaultProperties, attributesMap.get("align"));
+        //        addFontProperties(defaultProperties, attributesMap.get("font"));
         return defaultProperties;
+    }
+
+    private void addBorderProperties(Map<String, Object> properties, Object border) {
+        if (border instanceof BorderStyle && !BorderStyle.NONE.equals(border)) {
+            //设置边线样式
+            properties.put(CellUtil.BORDER_TOP, border);
+            properties.put(CellUtil.BORDER_BOTTOM, border);
+            properties.put(CellUtil.BORDER_LEFT, border);
+            properties.put(CellUtil.BORDER_RIGHT, border);
+        }
+    }
+
+    private void addfgcolorProperties(Map<String, Object> properties, Object fgcolor) {
+        if (fgcolor instanceof IndexedColors && !IndexedColors.AUTOMATIC.equals(fgcolor)) {
+            properties.put(CellUtil.FILL_FOREGROUND_COLOR, ((IndexedColors) fgcolor).getIndex());
+            properties.put(CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
+        }
     }
 
     private void addWrapTextProperties(Map<String, Object> properties, Object wraptext) {

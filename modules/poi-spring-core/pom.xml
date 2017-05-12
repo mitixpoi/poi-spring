@@ -33,6 +33,14 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-excelant</artifactId>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -61,10 +69,7 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

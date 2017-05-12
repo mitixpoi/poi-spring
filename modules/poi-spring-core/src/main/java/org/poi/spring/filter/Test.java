@@ -1,8 +1,10 @@
 package org.poi.spring.filter;
 
 import org.apache.poi.hssf.usermodel.HSSFHeader;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -34,28 +36,34 @@ public class Test {
         Workbook workbook = new SXSSFWorkbook();
         Sheet sheet = workbook.createSheet("Sheet1");
         Map<String, Object> properties = new HashMap<String, Object>();
-        //左右
-        properties.put(CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
-        //上下
-        properties.put(CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
-        properties.put(CellUtil.HIDDEN, true);
-        // border around a cell
-        properties.put(CellUtil.BORDER_TOP, CellStyle.BORDER_MEDIUM);
-        properties.put(CellUtil.BORDER_BOTTOM, CellStyle.BORDER_MEDIUM);
-        properties.put(CellUtil.BORDER_LEFT, CellStyle.BORDER_MEDIUM);
-        properties.put(CellUtil.BORDER_RIGHT, CellStyle.BORDER_MEDIUM);
+//        //左右
+//        properties.put(CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+//        //上下
+//        properties.put(CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
+//        properties.put(CellUtil.HIDDEN, true);
+//        // border around a cell
+        properties.put(CellUtil.BORDER_TOP, BorderStyle.THIN);
+        properties.put(CellUtil.BORDER_BOTTOM, BorderStyle.THIN);
+        properties.put(CellUtil.BORDER_LEFT, BorderStyle.THIN);
+        properties.put(CellUtil.BORDER_RIGHT, BorderStyle.THIN);
+        properties.put(CellUtil.FILL_FOREGROUND_COLOR, IndexedColors.LIGHT_GREEN.getIndex());
+        properties.put(CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
 
-        // Give it a color (RED)
-        properties.put(CellUtil.TOP_BORDER_COLOR, IndexedColors.RED.getIndex());
-        properties.put(CellUtil.BOTTOM_BORDER_COLOR, IndexedColors.RED.getIndex());
-        properties.put(CellUtil.LEFT_BORDER_COLOR, IndexedColors.RED.getIndex());
-        properties.put(CellUtil.RIGHT_BORDER_COLOR, IndexedColors.RED.getIndex());
-        properties.put(CellUtil.FILL_FOREGROUND_COLOR, IndexedColors.RED.getIndex());
-        properties.put(CellUtil.FONT, 0);
+//
+//        // Give it a color (RED)
+//        properties.put(CellUtil.TOP_BORDER_COLOR, IndexedColors.RED.getIndex());
+//        properties.put(CellUtil.BOTTOM_BORDER_COLOR, IndexedColors.RED.getIndex());
+//        properties.put(CellUtil.LEFT_BORDER_COLOR, IndexedColors.RED.getIndex());
+//        properties.put(CellUtil.RIGHT_BORDER_COLOR, IndexedColors.RED.getIndex());
+
+//        properties.put(CellUtil.FONT, 0);
         // Apply the borders to the cell at B2
+
+
+
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
-//        CellUtil.setCellStyleProperties(cell, properties);
+        CellUtil.setCellStyleProperties(cell, properties);
         cell.setCellValue("如果需要生成填写案例的数据,建议使用传统的方式,添加一条数据");
         Row row2 = sheet.createRow(1);
         Cell cell2 = row2.createCell(0);

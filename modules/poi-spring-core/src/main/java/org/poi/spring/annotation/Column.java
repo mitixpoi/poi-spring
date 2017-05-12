@@ -1,5 +1,7 @@
 package org.poi.spring.annotation;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.poi.spring.PoiConstant;
 
 import java.lang.annotation.Documented;
@@ -19,6 +21,11 @@ public @interface Column {
     String title();
 
     int width() default PoiConstant.DEFAULT_WIDTH;
+    //todo 属性在xml中还未处理
+    IndexedColors fgcolor() default IndexedColors.AUTOMATIC;
+    //todo 属性在xml中还未处理
+    BorderStyle border() default BorderStyle.NONE;
+
 
 
 

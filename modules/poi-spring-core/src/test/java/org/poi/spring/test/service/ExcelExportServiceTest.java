@@ -31,7 +31,7 @@ public class ExcelExportServiceTest {
      */
     @Test
     public void createTemplateExceltest() {
-        Car car1 = new Car("info1", "22");
+        Car car1 = new Car("info1", "22","VN222888IIN5","卡卡西");
         ExcelExportResult result = ((ExcelExportServiceImpl) excelExportService).addExcelHeader(new TemplateExcleHeader() {
             @Override
             public String getHeader() {
@@ -60,10 +60,10 @@ public class ExcelExportServiceTest {
      */
     @Test
     public void createExceltest() {
-        Car car1 = new Car("info1", "22");
-        Car car2 = new Car("info2", "gg");
-        Car car3 = new Car("info3", "asf");
-        Car car4 = new Car("info4", "aa");
+        Car car1 = new Car("info1", "22","222444r56s","asdas");
+        Car car2 = new Car("info2", "gg","1QAZ2WXS","魔鬼的");
+        Car car3 = new Car("info3", "asf","KO98XH3","呃呃呃");
+        Car car4 = new Car("info4", "aa","8ujnhd","sfsdf");
         List<Car> cars = new ArrayList<>();
         cars.add(car1);
         cars.add(car2);

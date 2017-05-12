@@ -1,11 +1,16 @@
 package org.poi.spring.service.impl;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcelHeader;
@@ -24,7 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Hong.LvHang on 2017-05-08.
@@ -96,13 +103,42 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     private void doCreateHeader(Sheet sheet, ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
         if (excelHeader != null && excelHeader instanceof TemplateExcleHeader) {
             Row row = sheet.createRow((short) 0);
+            //设置表头的值
             Cell cell = row.createCell((short) 0);
             cell.setCellValue(((TemplateExcleHeader) excelHeader).getHeader());
+            //合并单元格
             int maxSize = excelWorkBookBeandefinition.getColumnDefinitions().size() - 1;
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxSize >= 0 ? maxSize : 0));
+            //获取样式
+            Map<String, Object> properties = createTemplateHeader();
+            //设置第一个单元格样式
+            CellUtil.setCellStyleProperties(cell, properties);
+            for (int i = 1; i <= maxSize; i++) {
+                //设置后续单元格样式
+                Cell cellMerge = row.createCell(i);
+                CellUtil.setCellStyleProperties(cellMerge, properties);
+            }
         } else if (excelHeader != null && excelHeader instanceof ReportExcleHeader) {
             ((ReportExcleHeader) excelHeader).buildHeader(sheet, excelWorkBookBeandefinition, beans);
         }
+    }
+
+    /**
+     * 设置极简表头样式
+     *
+     * @return
+     */
+    private Map<String, Object> createTemplateHeader() {
+        Map<String, Object> properties = new HashMap<>();
+        //设置底色
+        properties.put(CellUtil.FILL_FOREGROUND_COLOR, IndexedColors.AQUA.getIndex());
+        properties.put(CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
+        //设置边线样式
+        properties.put(CellUtil.BORDER_TOP, BorderStyle.MEDIUM);
+        properties.put(CellUtil.BORDER_BOTTOM, BorderStyle.MEDIUM);
+        properties.put(CellUtil.BORDER_LEFT, BorderStyle.MEDIUM);
+        properties.put(CellUtil.BORDER_RIGHT, BorderStyle.MEDIUM);
+        return properties;
     }
 
     /**
@@ -125,8 +161,8 @@ public class ExcelExportServiceImpl implements ExcelExportService {
                 sheet.setColumnWidth(i, columnDefinition.getColumnWidth());
             }
             Cell cell = titleRow.createCell(i);
-            //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
-            //excleConverter.canConvert(String.class, columnDefinition.getTitle().getClass());
+            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
+            //            excleConverter.canConvert(String.class, columnDefinition.getTitle().getClass());
             cell.setCellValue(columnDefinition.getTitle());
         }
     }
@@ -152,7 +188,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             }
             String valueStr = excleConverter.convert(value, String.class);
             Cell cell = row.createCell(i);
-            //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
+//            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
             cell.setCellValue(valueStr);
         }
     }

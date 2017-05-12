@@ -144,16 +144,13 @@ public class ExcelWorkBookBeandefinition implements InitializingBean {
                 columnDefinition.setColumnWidth(
                     this.getColumnWidth() == null ? PoiConstant.DEFAULT_WIDTH * PoiConstant.DEFAULT_WIDTH_R : this.getColumnWidth());
             }
-
-
-
-            //            Map<String, Object> properties = columnDefinition.getProperties();
-            //            //进行合并   JDK1.8的Map有merge方法  这里不进行使用
-            //            for (String name : defaultProperties.keySet()) {
-            //                if (properties.get(name) == null) {
-            //                    properties.put(name, defaultProperties.get(name));
-            //                }
-            //            }
+            Map<String, Object> properties = columnDefinition.getProperties();
+            //进行合并   JDK1.8的Map有merge方法  这里不进行使用
+            for (String name : defaultProperties.keySet()) {
+                if (properties.get(name) == null) {
+                    properties.put(name, defaultProperties.get(name));
+                }
+            }
         }
     }
 }

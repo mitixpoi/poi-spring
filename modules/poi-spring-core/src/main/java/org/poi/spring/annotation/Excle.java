@@ -1,5 +1,8 @@
 package org.poi.spring.annotation;
 
+import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.poi.spring.PoiConstant;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +28,10 @@ public @interface Excle {
     short sheetIndex() default 0;
 
     int width() default PoiConstant.DEFAULT_WIDTH ;
-
+    //todo 属性在xml中还未处理
+    IndexedColors fgcolor() default IndexedColors.AUTOMATIC;
+    //todo 属性在xml中还未处理
+    BorderStyle border() default BorderStyle.NONE;
 
 
 
