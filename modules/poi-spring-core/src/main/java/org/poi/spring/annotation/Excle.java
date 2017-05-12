@@ -1,6 +1,7 @@
 package org.poi.spring.annotation;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.poi.spring.PoiConstant;
 import org.springframework.stereotype.Component;
@@ -32,13 +33,10 @@ public @interface Excle {
     //todo 属性在xml中还未处理
     BorderStyle border() default BorderStyle.NONE;
 
+    HorizontalAlignment align() default HorizontalAlignment.GENERAL;
 
 
 
-
-
-
-    Align align() default Align.GENERAL;
 
     short font() default 0;
 }

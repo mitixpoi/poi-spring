@@ -123,8 +123,8 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         Map<String, Object> properties = new HashMap<>();
         addfgcolorProperties(properties, attributesMap.get("fgcolor"));
         addBorderProperties(properties, attributesMap.get("border"));
+        addAlignProperties(properties, attributesMap.get("align"));
 
-        //        addAlignProperties(properties, attributesMap.get("align"));
         //        addFontProperties(properties, attributesMap.get("font"));
         //        addWrapTextProperties(properties, attributesMap.get("wraptext"));
         return properties;
@@ -134,7 +134,7 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         Map<String, Object> defaultProperties = new HashMap<>();
         addfgcolorProperties(defaultProperties, attributesMap.get("fgcolor"));
         addBorderProperties(defaultProperties, attributesMap.get("border"));
-        //        addAlignProperties(defaultProperties, attributesMap.get("align"));
+        addAlignProperties(defaultProperties, attributesMap.get("align"));
         //        addFontProperties(defaultProperties, attributesMap.get("font"));
         return defaultProperties;
     }
@@ -168,28 +168,13 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         }
     }
 
-    private void addAlignProperties(Map<String, Object> properties, Object value) {
-        String alignStr = String.valueOf(value);
-        switch (alignStr) {
-            case "LEFT":
-                properties.put(CellUtil.ALIGNMENT, HorizontalAlignment.LEFT);
-                break;
-            case "RIGHT":
-                properties.put(CellUtil.ALIGNMENT, HorizontalAlignment.RIGHT);
-                break;
-            case "CENTER":
-                properties.put(CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
-                break;
-            case "GENERAL":
-                properties.put(CellUtil.ALIGNMENT, HorizontalAlignment.GENERAL);
-                break;
-            default:
-                properties.put(CellUtil.ALIGNMENT, HorizontalAlignment.GENERAL);
-                break;
+    private void addAlignProperties(Map<String, Object> properties, Object align) {
+        if (align instanceof HorizontalAlignment && !HorizontalAlignment.GENERAL.equals(align)) {
+            properties.put(CellUtil.ALIGNMENT, align);
         }
     }
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
+        //无需处理
     }
 }

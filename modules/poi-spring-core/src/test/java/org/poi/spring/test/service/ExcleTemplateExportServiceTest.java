@@ -7,6 +7,7 @@ import org.poi.spring.service.ExcleTemplateExportService;
 import org.poi.spring.service.impl.ExcleTemplateExportServiceImpl;
 import org.poi.spring.service.result.ExcelExportResult;
 import org.poi.spring.test.Car;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -25,7 +26,7 @@ import java.io.IOException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 public class ExcleTemplateExportServiceTest {
-
+    @Autowired
     private ExcleTemplateExportService excleTemplateExportService;
 
     /**

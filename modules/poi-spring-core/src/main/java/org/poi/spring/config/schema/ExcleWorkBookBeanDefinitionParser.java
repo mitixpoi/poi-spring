@@ -96,9 +96,9 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
 
     private Map<String, Object> addDefaultProperties(Element element) {
         Map<String, Object> properties = new HashMap<>();
-        if (element.hasAttribute(PoiConstant.DEFAULT_FONT)) {
-            addFontProperties(properties, element.getAttribute(PoiConstant.DEFAULT_FONT));
-        }
+//        if (element.hasAttribute(PoiConstant.DEFAULT_FONT)) {
+//            addFontProperties(properties, element.getAttribute(PoiConstant.DEFAULT_FONT));
+//        }
         if (element.hasAttribute(PoiConstant.DEFAULT_ALIGN_ATTRIBUTE)) {
             addAlignProperties(properties, element.getAttribute(PoiConstant.DEFAULT_ALIGN_ATTRIBUTE));
         }
@@ -199,12 +199,12 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
 
     private Map<String, Object> addProperties(Element columnElement) {
         Map<String, Object> properties = new HashMap<>();
-        if (columnElement.hasAttribute(PoiConstant.WRAPTEXT)) {
-            addWrapTextProperties(properties, columnElement.getAttribute(PoiConstant.WRAPTEXT));
-        }
-        if (columnElement.hasAttribute(PoiConstant.FONT)) {
-            addFontProperties(properties, columnElement.getAttribute(PoiConstant.FONT));
-        }
+//        if (columnElement.hasAttribute(PoiConstant.WRAPTEXT)) {
+//            addWrapTextProperties(properties, columnElement.getAttribute(PoiConstant.WRAPTEXT));
+//        }
+//        if (columnElement.hasAttribute(PoiConstant.FONT)) {
+//            addFontProperties(properties, columnElement.getAttribute(PoiConstant.FONT));
+//        }
         if (columnElement.hasAttribute(PoiConstant.ALIGN_ATTRIBUTE)) {
             addAlignProperties(properties, columnElement.getAttribute(PoiConstant.ALIGN_ATTRIBUTE));
         }
