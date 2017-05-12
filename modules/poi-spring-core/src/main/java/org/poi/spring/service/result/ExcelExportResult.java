@@ -3,10 +3,6 @@ package org.poi.spring.service.result;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
-import org.poi.spring.exception.ExcelException;
-import org.poi.spring.service.ExcelExportService;
-
-import java.util.List;
 
 /**
  * Excel导出结果

@@ -1,6 +1,5 @@
 package org.poi.spring.annotation;
 
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.poi.spring.PoiConstant;

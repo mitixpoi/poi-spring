@@ -2,10 +2,9 @@ package org.poi.spring.config.schema;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.util.CellUtil;
-import org.poi.spring.component.ExcelHeader;
+import org.poi.spring.PoiConstant;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
-import org.poi.spring.PoiConstant;
 import org.poi.spring.exception.ExcelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
