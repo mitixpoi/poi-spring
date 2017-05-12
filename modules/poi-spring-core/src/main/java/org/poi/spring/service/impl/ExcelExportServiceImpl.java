@@ -147,10 +147,13 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             ColumnDefinition columnDefinition = columnDefinitions.get(i);
             String name = columnDefinition.getName();
             Object value = ReflectUtil.getProperty(bean, name);
-            if (!excleConverter.canConvertString(value.getClass())) {
-                throw new ExcelException("无法转换成字符串,字段名name" + name);
+            String valueStr = "";
+            if (null != value) {
+                if (!excleConverter.canConvertString(value.getClass())) {
+                    throw new ExcelException("无法转换成字符串,字段名name" + name);
+                }
+                valueStr = excleConverter.convert(value, String.class);
             }
-            String valueStr = excleConverter.convert(value, String.class);
             Cell cell = row.createCell(i);
             //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
             cell.setCellValue(valueStr);
