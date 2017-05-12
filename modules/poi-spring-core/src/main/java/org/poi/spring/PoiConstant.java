@@ -38,6 +38,8 @@ public abstract class PoiConstant {
     public static final String DEFAULT_VALUE_ATTRIBUTE = "default-value";
     public static final String FONT = "font";
     public static final String WRAPTEXT = "wraptext";
+    public static final String FORMAT = "format";
+    public static final String DICTNO = "dictNo";
 
     public static final class Excle {
         public static final String sheetName = "";

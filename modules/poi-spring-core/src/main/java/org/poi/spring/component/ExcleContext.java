@@ -3,6 +3,7 @@ package org.poi.spring.component;
 import org.poi.spring.PoiConstant;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 
 import java.util.HashMap;
@@ -15,27 +16,34 @@ import java.util.Set;
  */
 public class ExcleContext extends ApplicationObjectSupport {
 
-    private final Set<String> excleIds = new HashSet<>();
+    private final Set<String> excelIds = new HashSet<>();
 
-    private final Map<String, ExcelWorkBookBeandefinition> excleMap = new HashMap<>();
+    private final Map<String, ExcelWorkBookBeandefinition> excelMap = new HashMap<>();
+
+    @Autowired(required = false)
+    private ExcelDictService excelDictService;
 
     @Override
     protected void initApplicationContext() throws BeansException {
-        String[] excleBeans = getApplicationContext().getBeanNamesForType(ExcelWorkBookBeandefinition.class);
-        if (excleBeans != null && excleBeans.length > 0) {
-            for (String beanName : excleBeans) {
-                ExcelWorkBookBeandefinition excleDef = (ExcelWorkBookBeandefinition) getApplicationContext().getBean(beanName);
-                excleIds.add(excleDef.getId());
-                excleMap.put(excleDef.getId(), excleDef);
+        String[] excelBeans = getApplicationContext().getBeanNamesForType(ExcelWorkBookBeandefinition.class);
+        if (excelBeans != null && excelBeans.length > 0) {
+            for (String beanName : excelBeans) {
+                ExcelWorkBookBeandefinition excelDef = (ExcelWorkBookBeandefinition) getApplicationContext().getBean(beanName);
+                excelIds.add(excelDef.getId());
+                excelMap.put(excelDef.getId(), excelDef);
             }
         }
     }
 
     public boolean exists(Class<?> targetClass) {
-        return excleIds.contains(targetClass.getName() + PoiConstant.CLASS_NAME_SUFFIX);
+        return excelIds.contains(targetClass.getName() + PoiConstant.CLASS_NAME_SUFFIX);
     }
 
     public ExcelWorkBookBeandefinition getExcelWorkBookBeandefinition(Class<?> targetClass) {
-        return excleMap.get(targetClass.getName() + PoiConstant.CLASS_NAME_SUFFIX);
+        return excelMap.get(targetClass.getName() + PoiConstant.CLASS_NAME_SUFFIX);
+    }
+
+    public ExcelDictService getExcelDictService() {
+        return excelDictService;
     }
 }

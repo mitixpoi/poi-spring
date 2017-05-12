@@ -30,6 +30,10 @@ public @interface Column {
     HorizontalAlignment align() default HorizontalAlignment.GENERAL;
 
 
+    //格式化约定字典
+    String format() default PoiConstant.EMPTY_STRING;
+    //数据库字典值
+    String dictNo() default PoiConstant.EMPTY_STRING;
 
 
     boolean required() default false;

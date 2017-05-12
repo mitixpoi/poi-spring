@@ -110,6 +110,8 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         columnDefinition.setRegex(String.valueOf(attributesMap.get("regex")));
         columnDefinition.setRequired((Boolean) attributesMap.get("required"));
         columnDefinition.setColumnWidth((Integer) attributesMap.get("width") * PoiConstant.DEFAULT_WIDTH_R);
+        columnDefinition.setFormat(String.valueOf(attributesMap.get(PoiConstant.FORMAT)));
+        columnDefinition.setDictNo(String.valueOf(attributesMap.get(PoiConstant.DICTNO)));
         //        if (!PoiConstant.EMPTY_STRING.equals(attributesMap.get("defauleValue"))) {
         //            columnDefinition.setDefaultValue(String.valueOf(attributesMap.get("defauleValue")));
         //        }

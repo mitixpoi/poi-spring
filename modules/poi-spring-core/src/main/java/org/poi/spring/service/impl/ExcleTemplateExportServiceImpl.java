@@ -8,8 +8,14 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.ss.util.CellUtil;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFDataValidation;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.poi.spring.PoiConstant;
 import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.component.ExcleContext;
@@ -24,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +68,7 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
     }
 
     private ExcelExportResult doCreateExcel(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
-        Workbook workbook = new SXSSFWorkbook();
+        Workbook workbook = new XSSFWorkbook();
         //直接使用sheetname  在初始化的时候已经设置了名字
         Sheet sheet = workbook.createSheet(excelWorkBookBeandefinition.getSheetName());
 
@@ -172,6 +179,46 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
                     throw new ExcelException("无法转换成字符串,字段名name" + name);
                 }
                 valueStr = excleConverter.convert(value, String.class);
+                if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getDictNo())
+                    || !PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
+                    String[] dictArr = new String[0];
+                    if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getDictNo())) {
+                        if (null != excleContext.getExcelDictService()) {
+                            Map<String, String> map = excleContext.getExcelDictService().getColumnDictNoMap(columnDefinition.getDictNo());
+                            valueStr = map.get(valueStr);
+                            if (null == valueStr) {
+                                valueStr = "";
+                            }
+                            dictArr = new String[map.size()];
+                            int index = 0;
+                            for (String s : map.keySet()) {
+                                dictArr[index++] = map.get(s);
+                            }
+                        }
+                    }else if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
+                        try {
+                            String[] expressions = StringUtils.split(columnDefinition.getFormat(), ",");
+                            dictArr = new String[expressions.length];
+                            for (int j = 0; j < expressions.length; j++) {
+                                String expression = expressions[j];
+                                String[] val = StringUtils.split(expression, ":");
+                                String v1 = val[0];
+                                String v2 = val[1];
+                                if (value.equals(v1)) {
+                                    valueStr = v2;
+                                }
+                                dictArr[j]=v2;
+                            }
+                        } catch (Exception e) {
+                            throw new ExcelException("表达式:" + columnDefinition.getFormat() + "错误,正确的格式应该以[,]号分割,[:]号取值");
+                        }
+                    }
+                    XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet) row.getSheet());
+                    XSSFDataValidationConstraint dvConstraint = (XSSFDataValidationConstraint) dvHelper.createExplicitListConstraint(dictArr);
+                    CellRangeAddressList addressList = new CellRangeAddressList(rowNum, rowNum, row.getPhysicalNumberOfCells(), row.getPhysicalNumberOfCells());
+                    XSSFDataValidation validation = (XSSFDataValidation) dvHelper.createValidation(dvConstraint, addressList);
+                    row.getSheet().addValidationData(validation);
+                }
             }
             Cell cell = row.createCell(i);
             //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());

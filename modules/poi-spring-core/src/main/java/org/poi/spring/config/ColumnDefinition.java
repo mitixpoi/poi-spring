@@ -69,6 +69,16 @@ public class ColumnDefinition {
     private String defaultValue;
 
     /**
+     * 表达式,例如(1:男,2:女)表示,值为1,取 (男)作为value ,2则取 (女)作为value
+     */
+    private String format;
+
+    /**
+     * 字典值，取数据库
+     */
+    private String dictNo;
+
+    /**
      * 参数信息
      */
     private Map<String, Object> properties;
@@ -185,4 +195,19 @@ public class ColumnDefinition {
         this.defaultValue = defaultValue;
     }
 
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getDictNo() {
+        return dictNo;
+    }
+
+    public void setDictNo(String dictNo) {
+        this.dictNo = dictNo;
+    }
 }

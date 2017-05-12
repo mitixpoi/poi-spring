@@ -25,6 +25,9 @@ public class Car {
     @Column(title = "客户")
     private String customerName;
 
+    @Column(title = "客户状态", format = "0:正常,1:禁用", dictNo = "1010")
+    private String customerStatus = "1";
+
     public Car(){
 
     }
@@ -69,4 +72,11 @@ public class Car {
         this.age = age;
     }
 
+    public String getCustomerStatus() {
+        return customerStatus;
+    }
+
+    public void setCustomerStatus(String customerStatus) {
+        this.customerStatus = customerStatus;
+    }
 }
