@@ -34,12 +34,10 @@ public @interface Column {
     //数据库字典值
     String dictNo() default PoiConstant.EMPTY_STRING;
 
-
-
     boolean required() default false;
 
-    String regex() default PoiConstant.EMPTY_STRING;
-
-
     String defauleValue() default "";
+
+
+
 }
