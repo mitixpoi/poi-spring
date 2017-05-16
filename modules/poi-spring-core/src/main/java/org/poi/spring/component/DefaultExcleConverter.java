@@ -1,5 +1,6 @@
 package org.poi.spring.component;
 
+import org.poi.spring.component.support.DefaultExcleConversionService;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -10,11 +11,8 @@ import org.springframework.core.convert.support.DefaultConversionService;
  */
 
 public class DefaultExcleConverter implements ExcleConverter {
-    private final ConversionService conversionService;
 
-    public DefaultExcleConverter() {
-        this.conversionService = new DefaultConversionService();
-    }
+    private final ConversionService conversionService = DefaultExcleConversionService.getSharedInstance();
 
     @Override
     public boolean canConvertString(Class<?> sourceType) {

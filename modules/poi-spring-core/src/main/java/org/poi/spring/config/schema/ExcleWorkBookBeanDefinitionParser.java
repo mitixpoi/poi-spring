@@ -96,27 +96,10 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
 
     private Map<String, Object> addDefaultProperties(Element element) {
         Map<String, Object> properties = new HashMap<>();
-//        if (element.hasAttribute(PoiConstant.DEFAULT_FONT)) {
-//            addFontProperties(properties, element.getAttribute(PoiConstant.DEFAULT_FONT));
-//        }
         if (element.hasAttribute(PoiConstant.DEFAULT_ALIGN_ATTRIBUTE)) {
             addAlignProperties(properties, element.getAttribute(PoiConstant.DEFAULT_ALIGN_ATTRIBUTE));
         }
         return properties;
-    }
-
-    private void addWrapTextProperties(Map<String, Object> properties, String value) {
-        if (PoiConstant.TRUE_VALUE.equals(value)) {
-            properties.put(CellUtil.WRAP_TEXT, true);
-        }
-    }
-
-    private void addFontProperties(Map<String, Object> properties, String value) {
-        try {
-            properties.put(CellUtil.FONT, Short.valueOf(value));
-        } catch (Exception e) {
-            throw new ExcelException("excleworkbook font error value=" + value);
-        }
     }
 
     private void addAlignProperties(Map<String, Object> properties, String value) {
@@ -181,7 +164,8 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
         }
         if (columnElement.hasAttribute(PoiConstant.COLUMN_WIDTH_ATTRIBUTE)) {
             try {
-                columnDefinition.setColumnWidth(Integer.parseInt(columnElement.getAttribute(PoiConstant.COLUMN_WIDTH_ATTRIBUTE)) * PoiConstant.DEFAULT_WIDTH_R);
+                columnDefinition.setColumnWidth(
+                    Integer.parseInt(columnElement.getAttribute(PoiConstant.COLUMN_WIDTH_ATTRIBUTE)) * PoiConstant.DEFAULT_WIDTH_R);
             } catch (Exception e) {
                 throw new ExcelException("excleworkbook column-width has error excleName=" + excleName + " column-name=" + name);
             }
@@ -199,12 +183,6 @@ public class ExcleWorkBookBeanDefinitionParser implements BeanDefinitionParser {
 
     private Map<String, Object> addProperties(Element columnElement) {
         Map<String, Object> properties = new HashMap<>();
-//        if (columnElement.hasAttribute(PoiConstant.WRAPTEXT)) {
-//            addWrapTextProperties(properties, columnElement.getAttribute(PoiConstant.WRAPTEXT));
-//        }
-//        if (columnElement.hasAttribute(PoiConstant.FONT)) {
-//            addFontProperties(properties, columnElement.getAttribute(PoiConstant.FONT));
-//        }
         if (columnElement.hasAttribute(PoiConstant.ALIGN_ATTRIBUTE)) {
             addAlignProperties(properties, columnElement.getAttribute(PoiConstant.ALIGN_ATTRIBUTE));
         }

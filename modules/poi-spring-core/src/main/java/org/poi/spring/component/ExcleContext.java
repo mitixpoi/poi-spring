@@ -20,6 +20,9 @@ public class ExcleContext extends ApplicationObjectSupport {
 
     private final Map<String, ExcelWorkBookBeandefinition> excelMap = new HashMap<>();
 
+    @Autowired
+    private ExcleConverter excleConverter;
+
     @Autowired(required = false)
     private ExcelDictService excelDictService;
 
@@ -45,5 +48,17 @@ public class ExcleContext extends ApplicationObjectSupport {
 
     public ExcelDictService getExcelDictService() {
         return excelDictService;
+    }
+
+    public void setExcelDictService(ExcelDictService excelDictService) {
+        this.excelDictService = excelDictService;
+    }
+
+    public ExcleConverter getExcleConverter() {
+        return excleConverter;
+    }
+
+    public void setExcleConverter(ExcleConverter excleConverter) {
+        this.excleConverter = excleConverter;
     }
 }

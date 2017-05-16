@@ -36,7 +36,4 @@ public @interface Excle {
     HorizontalAlignment align() default HorizontalAlignment.GENERAL;
 
 
-
-
-    short font() default 0;
 }

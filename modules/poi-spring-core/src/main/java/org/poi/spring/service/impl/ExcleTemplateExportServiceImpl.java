@@ -15,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.poi.spring.ExcleWapper;
 import org.poi.spring.PoiConstant;
 import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcelHeader;
@@ -48,9 +49,6 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
     @Autowired
     private ExcleContext excleContext;
 
-    @Autowired
-    private ExcleConverter excleConverter;
-
     private ExcelHeader excelHeader;
 
     @Override
@@ -71,15 +69,16 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
         Workbook workbook = new XSSFWorkbook();
         //直接使用sheetname  在初始化的时候已经设置了名字
         Sheet sheet = workbook.createSheet(excelWorkBookBeandefinition.getSheetName());
+        ExcleWapper wapper = new ExcleWapper(workbook, sheet);
 
         //初始化文件头
-        doCreateHeader(sheet, excelWorkBookBeandefinition, beans);
+        doCreateHeader(wapper, excelWorkBookBeandefinition, beans);
         //设置title
-        createTitle(excelWorkBookBeandefinition, sheet, workbook);
+        createTitle(excelWorkBookBeandefinition, wapper);
 
         //如果listBean不为空,创建数据行
         if (beans != null) {
-            createRows(excelWorkBookBeandefinition, sheet, beans);
+            createRows(excelWorkBookBeandefinition, wapper, beans);
         }
         ExcelExportResult exportResult = new ExcelExportResult(excelWorkBookBeandefinition, sheet, workbook);
         return exportResult;
@@ -89,19 +88,20 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
      * 定制表头
      * 极简模式和自定义模式
      *
-     * @param sheet
+     * @param wapper
      * @param excelWorkBookBeandefinition
      * @param beans
      */
-    private void doCreateHeader(Sheet sheet, ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
+    //先调用addExcelHeader 可以注册表头生成方式
+    private void doCreateHeader(ExcleWapper wapper, ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
         if (excelHeader != null && excelHeader instanceof TemplateExcleHeader) {
-            Row row = sheet.createRow((short) 0);
+            Row row = wapper.getSheet().createRow((short) 0);
             //设置表头的值
             Cell cell = row.createCell((short) 0);
             cell.setCellValue(((TemplateExcleHeader) excelHeader).getHeader());
             //合并单元格
             int maxSize = excelWorkBookBeandefinition.getColumnDefinitions().size() - 1;
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxSize >= 0 ? maxSize : 0));
+            wapper.getSheet().addMergedRegion(new CellRangeAddress(0, 0, 0, maxSize >= 0 ? maxSize : 0));
             //获取样式
             Map<String, Object> properties = createTemplateHeader();
             //设置第一个单元格样式
@@ -136,33 +136,31 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
      * excle标题
      *
      * @param excelWorkBookBeandefinition
-     * @param sheet
-     * @param workbook
+     * @param wapper
      * @return
      */
-    private void createTitle(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, Sheet sheet, Workbook workbook) {
+    private void createTitle(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, ExcleWapper wapper) {
         //标题索引号
-        int titleIndex = sheet.getPhysicalNumberOfRows();
-        Row titleRow = sheet.createRow(titleIndex);
+        int titleIndex = wapper.getSheet().getPhysicalNumberOfRows();
+        Row titleRow = wapper.getSheet().createRow(titleIndex);
         List<ColumnDefinition> columnDefinitions = excelWorkBookBeandefinition.getColumnDefinitions();
         for (int i = 0; i < columnDefinitions.size(); i++) {
             ColumnDefinition columnDefinition = columnDefinitions.get(i);
             //设置宽度 都是在表头中处理的
             if (columnDefinition.getColumnWidth() != null) {
-                sheet.setColumnWidth(i, columnDefinition.getColumnWidth());
+                wapper.getSheet().setColumnWidth(i, columnDefinition.getColumnWidth());
             }
             Cell cell = titleRow.createCell(i);
             CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
-            //            excleConverter.canConvert(String.class, columnDefinition.getTitle().getClass());
             cell.setCellValue(columnDefinition.getTitle());
         }
     }
 
-    public void createRows(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, Sheet sheet, List<?> beans) {
-        int startRow = sheet.getPhysicalNumberOfRows();
+    public void createRows(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, ExcleWapper wapper, List<?> beans) {
+        int startRow = wapper.getSheet().getPhysicalNumberOfRows();
         for (int i = 0; i < beans.size(); i++) {
             int rowNum = startRow + i;
-            Row row = sheet.createRow(rowNum);
+            Row row = wapper.getSheet().createRow(rowNum);
             createRow(excelWorkBookBeandefinition, row, beans.get(i), rowNum);
         }
     }
@@ -175,10 +173,10 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
             Object value = ReflectUtil.getProperty(bean, name);
             String valueStr = "";
             if (null != value) {
-                if (!excleConverter.canConvertString(value.getClass())) {
+                if (!excleContext.getExcleConverter().canConvertString(value.getClass())) {
                     throw new ExcelException("无法转换成字符串,字段名name" + name);
                 }
-                valueStr = excleConverter.convert(value, String.class);
+                valueStr = excleContext.getExcleConverter().convert(value, String.class);
                 if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getDictNo())
                     || !PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
                     String[] dictArr = new String[0];
@@ -195,7 +193,7 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
                                 dictArr[index++] = map.get(s);
                             }
                         }
-                    }else if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
+                    } else if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
                         try {
                             String[] expressions = StringUtils.split(columnDefinition.getFormat(), ",");
                             dictArr = new String[expressions.length];
@@ -207,21 +205,22 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
                                 if (value.equals(v1)) {
                                     valueStr = v2;
                                 }
-                                dictArr[j]=v2;
+                                dictArr[j] = v2;
                             }
                         } catch (Exception e) {
                             throw new ExcelException("表达式:" + columnDefinition.getFormat() + "错误,正确的格式应该以[,]号分割,[:]号取值");
                         }
                     }
                     XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet) row.getSheet());
-                    XSSFDataValidationConstraint dvConstraint = (XSSFDataValidationConstraint) dvHelper.createExplicitListConstraint(dictArr);
-                    CellRangeAddressList addressList = new CellRangeAddressList(rowNum, rowNum, row.getPhysicalNumberOfCells(), row.getPhysicalNumberOfCells());
+                    XSSFDataValidationConstraint dvConstraint =
+                        (XSSFDataValidationConstraint) dvHelper.createExplicitListConstraint(dictArr);
+                    CellRangeAddressList addressList =
+                        new CellRangeAddressList(rowNum, rowNum, row.getPhysicalNumberOfCells(), row.getPhysicalNumberOfCells());
                     XSSFDataValidation validation = (XSSFDataValidation) dvHelper.createValidation(dvConstraint, addressList);
                     row.getSheet().addValidationData(validation);
                 }
             }
             Cell cell = row.createCell(i);
-            //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
             cell.setCellValue(valueStr);
         }
     }

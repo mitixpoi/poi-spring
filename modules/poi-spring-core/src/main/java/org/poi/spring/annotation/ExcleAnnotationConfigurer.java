@@ -112,9 +112,6 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         columnDefinition.setColumnWidth((Integer) attributesMap.get("width") * PoiConstant.DEFAULT_WIDTH_R);
         columnDefinition.setFormat(String.valueOf(attributesMap.get(PoiConstant.FORMAT)));
         columnDefinition.setDictNo(String.valueOf(attributesMap.get(PoiConstant.DICTNO)));
-        //        if (!PoiConstant.EMPTY_STRING.equals(attributesMap.get("defauleValue"))) {
-        //            columnDefinition.setDefaultValue(String.valueOf(attributesMap.get("defauleValue")));
-        //        }
         //参数信息
         Map<String, Object> properties = addProperties(attributesMap);
         columnDefinition.setProperties(properties);
@@ -126,9 +123,6 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         addfgcolorProperties(properties, attributesMap.get("fgcolor"));
         addBorderProperties(properties, attributesMap.get("border"));
         addAlignProperties(properties, attributesMap.get("align"));
-
-        //        addFontProperties(properties, attributesMap.get("font"));
-        //        addWrapTextProperties(properties, attributesMap.get("wraptext"));
         return properties;
     }
 
@@ -137,7 +131,6 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
         addfgcolorProperties(defaultProperties, attributesMap.get("fgcolor"));
         addBorderProperties(defaultProperties, attributesMap.get("border"));
         addAlignProperties(defaultProperties, attributesMap.get("align"));
-        //        addFontProperties(defaultProperties, attributesMap.get("font"));
         return defaultProperties;
     }
 

@@ -146,7 +146,6 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             }
             Cell cell = titleRow.createCell(i);
             CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());
-            //            excleConverter.canConvert(String.class, columnDefinition.getTitle().getClass());
             cell.setCellValue(columnDefinition.getTitle());
         }
     }
