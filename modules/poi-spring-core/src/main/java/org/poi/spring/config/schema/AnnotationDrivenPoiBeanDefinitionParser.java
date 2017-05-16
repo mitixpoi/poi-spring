@@ -2,7 +2,6 @@ package org.poi.spring.config.schema;
 
 import org.poi.spring.annotation.ExcleAnnotationConfigurer;
 import org.poi.spring.component.DefaultExcleConverter;
-import org.poi.spring.component.support.DefaultExcleConversionService;
 import org.poi.spring.component.ExcleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

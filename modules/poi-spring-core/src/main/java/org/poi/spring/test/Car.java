@@ -3,7 +3,6 @@ package org.poi.spring.test;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.poi.spring.annotation.Align;
 import org.poi.spring.annotation.Column;
 import org.poi.spring.annotation.Excle;
 
