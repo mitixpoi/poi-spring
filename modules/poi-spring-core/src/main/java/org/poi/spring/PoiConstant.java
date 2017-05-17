@@ -1,7 +1,5 @@
 package org.poi.spring;
 
-import org.poi.spring.annotation.Align;
-
 /**
  * Created by Hong.LvHang on 2017-04-13.
  */
