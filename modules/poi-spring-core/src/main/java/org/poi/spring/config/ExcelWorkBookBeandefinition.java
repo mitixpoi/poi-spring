@@ -36,7 +36,9 @@ public class ExcelWorkBookBeandefinition implements InitializingBean {
     /**
      * Excel 文件sheet索引，默认为0即，第一个
      */
-    private int sheetIndex = 1;
+    private int sheetIndex = 0;
+
+    private String header;
 
     /**
      * 实际使用宽度
@@ -118,6 +120,13 @@ public class ExcelWorkBookBeandefinition implements InitializingBean {
         this.sheetIndex = sheetIndex;
     }
 
+    public String getHeader() {
+        return header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

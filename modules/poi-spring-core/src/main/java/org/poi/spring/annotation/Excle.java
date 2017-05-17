@@ -27,6 +27,9 @@ public @interface Excle {
 
     short sheetIndex() default 0;
 
+    //设置表头信息
+    String header() default "";
+
     int width() default PoiConstant.DEFAULT_WIDTH ;
     //todo 属性在xml中还未处理
     IndexedColors fgcolor() default IndexedColors.AUTOMATIC;

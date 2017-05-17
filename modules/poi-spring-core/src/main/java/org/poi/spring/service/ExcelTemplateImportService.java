@@ -8,5 +8,5 @@ import java.io.InputStream;
  * Created by Hong.LvHang on 2017-05-08.
  */
 public interface ExcelTemplateImportService {
-    ExcelImportResult readExcel(Class<?> beanClass, int titleIndex, InputStream excelStream, Integer sheetIndex, boolean multivalidate);
+    ExcelImportResult readExcel(Class<?> beanClass, InputStream excelStream);
 }

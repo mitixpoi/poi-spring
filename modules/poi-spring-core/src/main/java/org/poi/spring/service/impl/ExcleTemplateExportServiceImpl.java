@@ -18,9 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.poi.spring.ExcleWapper;
 import org.poi.spring.PoiConstant;
 import org.poi.spring.ReflectUtil;
-import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.component.ExcleContext;
-import org.poi.spring.component.TemplateExcleHeader;
 import org.poi.spring.component.TemplateExportInterceptor;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
@@ -33,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.OrderComparator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,8 +47,6 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
 
     @Autowired
     private ExcleContext excleContext;
-
-    private ExcelHeader excelHeader;
 
     private static final Object EMPTY_OBJECT = null;
 
@@ -98,11 +93,11 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
      */
     //先调用addExcelHeader 可以注册表头生成方式
     private void doCreateHeader(ExcleWapper wapper, ExcelWorkBookBeandefinition excelWorkBookBeandefinition, List<?> beans) {
-        if (excelHeader != null && excelHeader instanceof TemplateExcleHeader) {
+        if (excelWorkBookBeandefinition.getHeader() != null && excelWorkBookBeandefinition.getHeader() != "") {
             Row row = wapper.getSheet().createRow((short) 0);
             //设置表头的值
             Cell cell = row.createCell((short) 0);
-            cell.setCellValue(((TemplateExcleHeader) excelHeader).getHeader());
+            cell.setCellValue(excelWorkBookBeandefinition.getHeader());
             //合并单元格
             int maxSize = excelWorkBookBeandefinition.getColumnDefinitions().size() - 1;
             wapper.getSheet().addMergedRegion(new CellRangeAddress(0, 0, 0, maxSize >= 0 ? maxSize : 0));
@@ -284,10 +279,5 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
         }
         //从注册信息中获取Bean信息
         return excleContext.getExcelWorkBookBeandefinition(beanClass);
-    }
-
-    public ExcleTemplateExportServiceImpl addExcelHeader(ExcelHeader excelHeader) {
-        this.excelHeader = excelHeader;
-        return this;
     }
 }

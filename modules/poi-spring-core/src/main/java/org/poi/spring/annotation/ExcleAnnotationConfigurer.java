@@ -33,7 +33,6 @@ import java.util.Map;
 public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ExcleAnnotationConfigurer.class);
 
-
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
         String[] candidateBean = beanDefinitionRegistry.getBeanDefinitionNames();
         for (String beanName : candidateBean) {
@@ -55,24 +54,28 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
                 RootBeanDefinition eligibleBeanDefinition = new RootBeanDefinition();
                 eligibleBeanDefinition.setBeanClass(ExcelWorkBookBeandefinition.class);
                 eligibleBeanDefinition.setLazyInit(false);
-                eligibleBeanDefinition.getPropertyValues().addPropertyValue("dataClass", originClass);
-                eligibleBeanDefinition.getPropertyValues().addPropertyValue("id", id);
+                eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.DATA_CLASS, originClass);
+                eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.ID, id);
                 Map<String, Object> attributesMap = AnnotationUtils.getAnnotationAttributes(annotation);
                 //excleName
-                if (attributesMap.get("name") == null) {
+                if (attributesMap.get(PoiConstant.ExcleAnnProperties.EXCLE_NAME) == null) {
                     throw new ExcelException("Annotation Excle name not fand originClass=" + originClass.getName());
                 }
-                eligibleBeanDefinition.getPropertyValues().addPropertyValue("excleName", attributesMap.get("name"));
-                if (attributesMap.get("sheetName") != null) {
-                    eligibleBeanDefinition.getPropertyValues().addPropertyValue("sheetName", attributesMap.get("sheetName"));
+                eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.EXCLE_NAME, attributesMap.get(PoiConstant.ExcleAnnProperties.EXCLE_NAME));
+                if (attributesMap.get(PoiConstant.ExcleAnnProperties.SHEET_NAME) != null) {
+                    eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.SHEET_NAME, attributesMap.get(PoiConstant.ExcleAnnProperties.SHEET_NAME));
                 }
-                if (attributesMap.get("sheetIndex") != null) {
-                    eligibleBeanDefinition.getPropertyValues().addPropertyValue("sheetIndex", attributesMap.get("sheetIndex"));
+                if (attributesMap.get(PoiConstant.ExcleAnnProperties.SHEET_INDEX) != null) {
+                    eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.SHEET_INDEX, attributesMap.get(PoiConstant.ExcleAnnProperties.SHEET_INDEX));
                 }
-                if (attributesMap.get("width") != null) {
+                if (attributesMap.get(PoiConstant.ExcleAnnProperties.HEADER) != null) {
+                    eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.HEADER, attributesMap.get(PoiConstant.ExcleAnnProperties.HEADER));
+                }
+                if (attributesMap.get(PoiConstant.ExcleAnnProperties.WIDTH) != null) {
                     try {
-                        int width = Integer.valueOf(String.valueOf(attributesMap.get("width"))) * PoiConstant.DEFAULT_WIDTH_R;
-                        eligibleBeanDefinition.getPropertyValues().addPropertyValue("columnWidth", width);
+                        int width = Integer.valueOf(String.valueOf(attributesMap.get(PoiConstant.ExcleAnnProperties.WIDTH)))
+                            * PoiConstant.DEFAULT_WIDTH_R;
+                        eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.COLUMN_WIDTH, width);
                     } catch (Exception e) {
                         ExcelException exception = new ExcelException("设置宽度失败 excleName=" + attributesMap.get("name"));
                         exception.initCause(e);
@@ -81,10 +84,10 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
                 }
                 //参数信息
                 Map<String, Object> defaultProperties = addDefaultProperties(attributesMap);
-                eligibleBeanDefinition.getPropertyValues().addPropertyValue("defaultProperties", defaultProperties);
+                eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.DEFAULT_PROPERTIES, defaultProperties);
                 //解析属性上的注解
                 List<ColumnDefinition> columnDefinitions = parseColumnAnnotations(originClass);
-                eligibleBeanDefinition.getPropertyValues().addPropertyValue("columnDefinitions", columnDefinitions);
+                eligibleBeanDefinition.getPropertyValues().addPropertyValue(PoiConstant.ExcleDefinitionProperties.COLUMN_DEFINITIONS, columnDefinitions);
                 beanDefinitionRegistry.registerBeanDefinition(id, eligibleBeanDefinition);
             }
         }
@@ -106,12 +109,12 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
     private ColumnDefinition parseColumnAnnotation(Field field, Map<String, Object> attributesMap) {
         ColumnDefinition columnDefinition = new ColumnDefinition();
         columnDefinition.setName(field.getName());
-        columnDefinition.setTitle(String.valueOf(attributesMap.get("title")));
-        columnDefinition.setRegex(String.valueOf(attributesMap.get("regex")));
-        columnDefinition.setRequired((Boolean) attributesMap.get("required"));
-        columnDefinition.setColumnWidth((Integer) attributesMap.get("width") * PoiConstant.DEFAULT_WIDTH_R);
-        columnDefinition.setFormat(String.valueOf(attributesMap.get(PoiConstant.FORMAT)));
-        columnDefinition.setDictNo(String.valueOf(attributesMap.get(PoiConstant.DICTNO)));
+        columnDefinition.setTitle(String.valueOf(attributesMap.get(PoiConstant.ExcleAnnProperties.TITLE)));
+        columnDefinition.setRegex(String.valueOf(attributesMap.get(PoiConstant.ExcleAnnProperties.REGEX)));
+        columnDefinition.setRequired((Boolean) attributesMap.get(PoiConstant.ExcleAnnProperties.REQUIRED));
+        columnDefinition.setColumnWidth((Integer) attributesMap.get(PoiConstant.ExcleAnnProperties.WIDTH) * PoiConstant.DEFAULT_WIDTH_R);
+        columnDefinition.setFormat(String.valueOf(attributesMap.get(PoiConstant.ExcleAnnProperties.FORMAT)));
+        columnDefinition.setDictNo(String.valueOf(attributesMap.get(PoiConstant.ExcleAnnProperties.DICTNO)));
         //参数信息
         Map<String, Object> properties = addProperties(attributesMap);
         columnDefinition.setProperties(properties);
@@ -120,17 +123,17 @@ public class ExcleAnnotationConfigurer implements BeanDefinitionRegistryPostProc
 
     private Map<String, Object> addProperties(Map<String, Object> attributesMap) {
         Map<String, Object> properties = new HashMap<>();
-        addfgcolorProperties(properties, attributesMap.get("fgcolor"));
-        addBorderProperties(properties, attributesMap.get("border"));
-        addAlignProperties(properties, attributesMap.get("align"));
+        addfgcolorProperties(properties, attributesMap.get(PoiConstant.ExcleAnnProperties.FGCOLOR));
+        addBorderProperties(properties, attributesMap.get(PoiConstant.ExcleAnnProperties.BORDER));
+        addAlignProperties(properties, attributesMap.get(PoiConstant.ExcleAnnProperties.ALIGN));
         return properties;
     }
 
     private Map<String, Object> addDefaultProperties(Map<String, Object> attributesMap) {
         Map<String, Object> defaultProperties = new HashMap<>();
-        addfgcolorProperties(defaultProperties, attributesMap.get("fgcolor"));
-        addBorderProperties(defaultProperties, attributesMap.get("border"));
-        addAlignProperties(defaultProperties, attributesMap.get("align"));
+        addfgcolorProperties(defaultProperties, attributesMap.get(PoiConstant.ExcleAnnProperties.FGCOLOR));
+        addBorderProperties(defaultProperties, attributesMap.get(PoiConstant.ExcleAnnProperties.BORDER));
+        addAlignProperties(defaultProperties, attributesMap.get(PoiConstant.ExcleAnnProperties.ALIGN));
         return defaultProperties;
     }
 
