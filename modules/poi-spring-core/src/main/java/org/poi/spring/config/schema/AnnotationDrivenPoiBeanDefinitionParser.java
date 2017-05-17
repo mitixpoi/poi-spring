@@ -42,6 +42,8 @@ public class AnnotationDrivenPoiBeanDefinitionParser implements BeanDefinitionPa
         RootBeanDefinition excleContextDef = new RootBeanDefinition(ExcleContext.class);
         excleConverterDef.setSource(source);
         parserContext.getRegistry().registerBeanDefinition(EXCLE_CCNTEXT_BEAN_NAME, excleContextDef);
+
+
         return null;
     }
 }

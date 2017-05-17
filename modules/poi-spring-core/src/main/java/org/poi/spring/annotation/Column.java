@@ -29,9 +29,9 @@ public @interface Column {
 
     HorizontalAlignment align() default HorizontalAlignment.GENERAL;
 
-    //格式化约定字典
+    //格式化约定字典(在初始化类的时候转换成拦截处理器)
     String format() default PoiConstant.EMPTY_STRING;
-    //数据库字典值
+    //数据库字典值(在初始化类的时候转换成拦截处理器)
     String dictNo() default PoiConstant.EMPTY_STRING;
 
     boolean required() default false;

@@ -19,6 +19,14 @@ public class ExcleContext extends ApplicationObjectSupport {
     private final Set<String> excelIds = new HashSet<>();
 
     private final Map<String, ExcelWorkBookBeandefinition> excelMap = new HashMap<>();
+    /**
+     * 默认设置的倒入拦截器
+     */
+    private final Map<String, TemplateImportInterceptor> templateImportInterceptorMap = new HashMap<>();
+    /**
+     * 默认设置的导出拦截器
+     */
+    private final Map<String, TemplateExportInterceptor> templateExportInterceptorMap = new HashMap<>();
 
     @Autowired
     private ExcleConverter excleConverter;
@@ -34,6 +42,22 @@ public class ExcleContext extends ApplicationObjectSupport {
                 ExcelWorkBookBeandefinition excelDef = (ExcelWorkBookBeandefinition) getApplicationContext().getBean(beanName);
                 excelIds.add(excelDef.getId());
                 excelMap.put(excelDef.getId(), excelDef);
+            }
+        }
+
+        String[] templateImportInterceptors = getApplicationContext().getBeanNamesForType(TemplateImportInterceptor.class);
+        if (templateImportInterceptors != null && templateImportInterceptors.length > 0) {
+            for (String beanName : templateImportInterceptors) {
+                TemplateImportInterceptor templateImportInterceptor = (TemplateImportInterceptor) getApplicationContext().getBean(beanName);
+                templateImportInterceptorMap.put(beanName, templateImportInterceptor);
+            }
+        }
+
+        String[] templateExportInterceptors = getApplicationContext().getBeanNamesForType(TemplateExportInterceptor.class);
+        if (templateExportInterceptors != null && templateExportInterceptors.length > 0) {
+            for (String beanName : templateExportInterceptors) {
+                TemplateExportInterceptor templateExportInterceptor = (TemplateExportInterceptor) getApplicationContext().getBean(beanName);
+                templateExportInterceptorMap.put(beanName, templateExportInterceptor);
             }
         }
     }
@@ -60,5 +84,13 @@ public class ExcleContext extends ApplicationObjectSupport {
 
     public void setExcleConverter(ExcleConverter excleConverter) {
         this.excleConverter = excleConverter;
+    }
+
+    public Map<String, TemplateImportInterceptor> getTemplateImportInterceptorMap() {
+        return templateImportInterceptorMap;
+    }
+
+    public Map<String, TemplateExportInterceptor> getTemplateExportInterceptorMap() {
+        return templateExportInterceptorMap;
     }
 }

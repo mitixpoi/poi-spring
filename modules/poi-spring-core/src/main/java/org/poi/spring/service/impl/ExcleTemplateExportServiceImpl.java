@@ -21,6 +21,7 @@ import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.component.ExcleContext;
 import org.poi.spring.component.TemplateExcleHeader;
+import org.poi.spring.component.TemplateExportInterceptor;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.exception.ExcelException;
@@ -29,10 +30,12 @@ import org.poi.spring.service.result.ExcelExportResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.OrderComparator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,8 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
     private ExcleContext excleContext;
 
     private ExcelHeader excelHeader;
+
+    private static final Object EMPTY_OBJECT = null;
 
     @Override
     public ExcelExportResult createTemplateExcel(Object bean) {
@@ -159,69 +164,118 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
         int startRow = wapper.getSheet().getPhysicalNumberOfRows();
         for (int i = 0; i < beans.size(); i++) {
             int rowNum = startRow + i;
-            Row row = wapper.getSheet().createRow(rowNum);
-            createRow(excelWorkBookBeandefinition, row, beans.get(i), rowNum);
+            createRow(excelWorkBookBeandefinition, wapper, rowNum, beans.get(i));
         }
     }
 
-    private void createRow(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, Row row, Object bean, int rowNum) {
+    private void createRow(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, ExcleWapper wapper, int rowNum, Object bean) {
+        Row row = wapper.getSheet().createRow(rowNum);
         List<ColumnDefinition> columnDefinitions = excelWorkBookBeandefinition.getColumnDefinitions();
         for (int i = 0; i < columnDefinitions.size(); i++) {
             ColumnDefinition columnDefinition = columnDefinitions.get(i);
             String name = columnDefinition.getName();
             Object value = ReflectUtil.getProperty(bean, name);
-            String valueStr = "";
-            if (null != value) {
-                if (!excleContext.getExcleConverter().canConvertString(value.getClass())) {
-                    throw new ExcelException("无法转换成字符串,字段名name" + name);
-                }
-                valueStr = excleContext.getExcleConverter().convert(value, String.class);
-                if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getDictNo())
-                    || !PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
-                    String[] dictArr = new String[0];
-                    if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getDictNo())) {
-                        if (null != excleContext.getExcelDictService()) {
-                            Map<String, String> map = excleContext.getExcelDictService().getColumnDictNoMap(columnDefinition.getDictNo());
-                            valueStr = map.get(valueStr);
-                            if (null == valueStr) {
-                                valueStr = "";
-                            }
-                            dictArr = new String[map.size()];
-                            int index = 0;
-                            for (String s : map.keySet()) {
-                                dictArr[index++] = map.get(s);
-                            }
-                        }
-                    } else if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
-                        try {
-                            String[] expressions = StringUtils.split(columnDefinition.getFormat(), ",");
-                            dictArr = new String[expressions.length];
-                            for (int j = 0; j < expressions.length; j++) {
-                                String expression = expressions[j];
-                                String[] val = StringUtils.split(expression, ":");
-                                String v1 = val[0];
-                                String v2 = val[1];
-                                if (value.equals(v1)) {
-                                    valueStr = v2;
-                                }
-                                dictArr[j] = v2;
-                            }
-                        } catch (Exception e) {
-                            throw new ExcelException("表达式:" + columnDefinition.getFormat() + "错误,正确的格式应该以[,]号分割,[:]号取值");
-                        }
-                    }
-                    XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet) row.getSheet());
-                    XSSFDataValidationConstraint dvConstraint =
-                        (XSSFDataValidationConstraint) dvHelper.createExplicitListConstraint(dictArr);
-                    CellRangeAddressList addressList =
-                        new CellRangeAddressList(rowNum, rowNum, row.getPhysicalNumberOfCells(), row.getPhysicalNumberOfCells());
-                    XSSFDataValidation validation = (XSSFDataValidation) dvHelper.createValidation(dvConstraint, addressList);
-                    row.getSheet().addValidationData(validation);
-                }
+            //数据转换
+            String valueStr = doConverter(name, value);
+            if (valueStr != null) {
+                //数据拦截处理
+                valueStr = doTemplateExportInterceptor(columnDefinition, valueStr);
+                valueStr = doCreateValidationIfNecessary(columnDefinition, row, rowNum, valueStr);
             }
             Cell cell = row.createCell(i);
             cell.setCellValue(valueStr);
         }
+    }
+
+    private String doCreateValidationIfNecessary(ColumnDefinition columnDefinition, Row row, int rowNum, String valueStr) {
+        if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getDictNo())
+            || !PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
+            String[] dictArr = new String[0];
+            if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getDictNo())) {
+                if (null != excleContext.getExcelDictService()) {
+                    Map<String, String> map = excleContext.getExcelDictService().getColumnDictNoMap(columnDefinition.getDictNo());
+                    valueStr = map.get(valueStr);
+                    dictArr = new String[map.size()];
+                    int index = 0;
+                    for (String s : map.keySet()) {
+                        dictArr[index++] = map.get(s);
+                    }
+                }
+            } else if (!PoiConstant.EMPTY_STRING.equals(columnDefinition.getFormat())) {
+                try {
+                    String[] expressions = StringUtils.split(columnDefinition.getFormat(), ",");
+                    dictArr = new String[expressions.length];
+                    for (int j = 0; j < expressions.length; j++) {
+                        String expression = expressions[j];
+                        String[] val = StringUtils.split(expression, ":");
+                        String v1 = val[0];
+                        String v2 = val[1];
+                        if (valueStr.equals(v1)) {
+                            valueStr = v2;
+                        }
+                        dictArr[j] = v2;
+                    }
+                } catch (Exception e) {
+                    throw new ExcelException("表达式:" + columnDefinition.getFormat() + "错误,正确的格式应该以[,]号分割,[:]号取值");
+                }
+            }
+            XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet) row.getSheet());
+            XSSFDataValidationConstraint dvConstraint = (XSSFDataValidationConstraint) dvHelper.createExplicitListConstraint(dictArr);
+            CellRangeAddressList addressList =
+                new CellRangeAddressList(rowNum, rowNum, row.getPhysicalNumberOfCells(), row.getPhysicalNumberOfCells());
+            XSSFDataValidation validation = (XSSFDataValidation) dvHelper.createValidation(dvConstraint, addressList);
+            row.getSheet().addValidationData(validation);
+        }
+        return valueStr;
+    }
+
+    /**
+     * 导出前的处理
+     *
+     * @param columnDefinition
+     * @param valueStr
+     * @return
+     */
+    private String doTemplateExportInterceptor(ColumnDefinition columnDefinition, String valueStr) {
+        List<Object> interceptors = columnDefinition.getTemplateExportInterceptors();
+        String valueStrToUse = valueStr;
+        if (interceptors == null || interceptors.size() == 0) {
+            return valueStrToUse;
+        }
+        List<TemplateExportInterceptor> interceptorsToUse = new ArrayList<>();
+        for (Object interceptor : interceptors) {
+            if (interceptor instanceof TemplateExportInterceptor) {
+                interceptorsToUse.add((TemplateExportInterceptor) interceptor);
+            } else if (interceptor instanceof String) {
+                TemplateExportInterceptor interceptorEntity = excleContext.getTemplateExportInterceptorMap().get(interceptor);
+                if (interceptorEntity != null) {
+                    interceptorsToUse.add((TemplateExportInterceptor) interceptor);
+                }
+            } else {
+                throw new ExcelException("错误的数据导出拦截处理器" + interceptor.toString());
+            }
+        }
+        //排序
+        Collections.sort(interceptorsToUse, OrderComparator.INSTANCE);
+        for (TemplateExportInterceptor interceptor : interceptorsToUse) {
+            valueStrToUse = interceptor.perHandle(columnDefinition, valueStrToUse);
+            if (valueStrToUse == null) {
+                throw new ExcelException("拦截器执行错误" + interceptor.toString());
+            }
+        }
+        return valueStrToUse;
+    }
+
+    private String doConverter(String name, Object value) {
+        String valueStr = null;
+        if (EMPTY_OBJECT == null) {
+            return valueStr;
+        }
+        if (!excleContext.getExcleConverter().canConvertString(value.getClass())) {
+            throw new ExcelException("无法转换成字符串,字段名name" + name);
+        }
+        valueStr = excleContext.getExcleConverter().convert(value, String.class);
+        return valueStr;
     }
 
     private ExcelWorkBookBeandefinition getExcelWorkBookBeandefinition(Class<?> beanClass) {

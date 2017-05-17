@@ -1,8 +1,5 @@
 package org.poi.spring.config;
 
-import org.poi.spring.filter.Filter;
-import org.springframework.core.convert.converter.Converter;
-
 import java.util.List;
 import java.util.Map;
 
@@ -22,34 +19,21 @@ public class ColumnDefinition {
      * 是否必须
      */
     private boolean required = false;
+
     /**
-     * 字段转化类 下载使用
+     * 导出拦截器
      */
-    private String convertdown;
+    private List<Object> templateExportInterceptors;
     /**
-     * 字段转化类 下载使用
+     * 导入拦截器
      */
-    private Converter converterDown;
-    /**
-     * 字段转化类  上传使用
-     */
-    private String convertup;
-    /**
-     * 字段转化类 上传使用
-     */
-    private Converter converterUp;
-    /**
-     * 处理拦截  上传
-     */
-    private String filter;
-    /**
-     * 处理拦截  上传
-     */
-    private List<Filter> filters;
+    private List<Object> templateImportInterceptors;
+
     /**
      * 表达式
      */
     private String regex;
+
     /**
      * 校验失败返回
      */
@@ -83,6 +67,26 @@ public class ColumnDefinition {
      */
     private Map<String, Object> properties;
 
+    public List<Object> getTemplateExportInterceptors() {
+        return templateExportInterceptors;
+    }
+
+    public void setTemplateExportInterceptors(List<Object> templateExportInterceptors) {
+        this.templateExportInterceptors = templateExportInterceptors;
+    }
+
+    public List<Object> getTemplateImportInterceptors() {
+        return templateImportInterceptors;
+    }
+
+    public void setTemplateImportInterceptors(List<Object> templateImportInterceptors) {
+        this.templateImportInterceptors = templateImportInterceptors;
+    }
+
+    public void setColumnWidth(int columnWidth) {
+        this.columnWidth = columnWidth;
+    }
+
     public Map<String, Object> getProperties() {
         return properties;
     }
@@ -113,54 +117,6 @@ public class ColumnDefinition {
 
     public void setRequired(boolean required) {
         this.required = required;
-    }
-
-    public String getConvertdown() {
-        return convertdown;
-    }
-
-    public void setConvertdown(String convertdown) {
-        this.convertdown = convertdown;
-    }
-
-    public Converter getConverterDown() {
-        return converterDown;
-    }
-
-    public void setConverterDown(Converter converterDown) {
-        this.converterDown = converterDown;
-    }
-
-    public String getConvertup() {
-        return convertup;
-    }
-
-    public void setConvertup(String convertup) {
-        this.convertup = convertup;
-    }
-
-    public Converter getConverterUp() {
-        return converterUp;
-    }
-
-    public void setConverterUp(Converter converterUp) {
-        this.converterUp = converterUp;
-    }
-
-    public String getFilter() {
-        return filter;
-    }
-
-    public void setFilter(String filter) {
-        this.filter = filter;
-    }
-
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
     }
 
     public String getRegex() {
