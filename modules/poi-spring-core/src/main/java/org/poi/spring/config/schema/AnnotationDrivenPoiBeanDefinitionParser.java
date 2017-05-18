@@ -3,6 +3,7 @@ package org.poi.spring.config.schema;
 import org.poi.spring.annotation.ExcleAnnotationConfigurer;
 import org.poi.spring.component.DefaultExcleConverter;
 import org.poi.spring.component.ExcleContext;
+import org.poi.spring.component.interceptor.RequiredImportInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -40,10 +41,20 @@ public class AnnotationDrivenPoiBeanDefinitionParser implements BeanDefinitionPa
 
         //注册Excle字段转换器
         RootBeanDefinition excleContextDef = new RootBeanDefinition(ExcleContext.class);
-        excleConverterDef.setSource(source);
+        excleContextDef.setSource(source);
         parserContext.getRegistry().registerBeanDefinition(EXCLE_CCNTEXT_BEAN_NAME, excleContextDef);
 
+        registryInterceptor(source, parserContext);
 
         return null;
+    }
+
+    private void registryInterceptor(Object source, ParserContext parserContext) {
+        RootBeanDefinition requiredInterceptorDef = new RootBeanDefinition(RequiredImportInterceptor.class);
+        requiredInterceptorDef.setSource(source);
+        parserContext.getRegistry().registerBeanDefinition("requiredImportInterceptor", requiredInterceptorDef);
+
+
+
     }
 }

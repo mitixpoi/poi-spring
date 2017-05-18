@@ -15,11 +15,12 @@ import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.poi.spring.CellDefinitionWapper;
 import org.poi.spring.ExcleWapper;
 import org.poi.spring.PoiConstant;
 import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcleContext;
-import org.poi.spring.component.TemplateExportInterceptor;
+import org.poi.spring.component.interceptor.TemplateExportInterceptor;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.exception.ExcelException;
@@ -28,12 +29,10 @@ import org.poi.spring.service.result.ExcelExportResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.OrderComparator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,18 +163,20 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
         }
     }
 
-    private void createRow(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, ExcleWapper wapper, int rowNum, Object bean) {
-        Row row = wapper.getSheet().createRow(rowNum);
+    private void createRow(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, ExcleWapper excleWapper, int rowNum, Object bean) {
+        Row row = excleWapper.getSheet().createRow(rowNum);
         List<ColumnDefinition> columnDefinitions = excelWorkBookBeandefinition.getColumnDefinitions();
         for (int i = 0; i < columnDefinitions.size(); i++) {
             ColumnDefinition columnDefinition = columnDefinitions.get(i);
             String name = columnDefinition.getName();
             Object value = ReflectUtil.getProperty(bean, name);
+            //到处先转换再拦截
             //数据转换
             String valueStr = doConverter(name, value);
             if (valueStr != null) {
+                CellDefinitionWapper cellWapper = new CellDefinitionWapper(columnDefinition);
                 //数据拦截处理
-                valueStr = doTemplateExportInterceptor(columnDefinition, valueStr);
+                valueStr = doTemplateExportInterceptor(cellWapper, valueStr);
                 valueStr = doCreateValidationIfNecessary(columnDefinition, row, rowNum, valueStr);
             }
             Cell cell = row.createCell(i);
@@ -228,35 +229,19 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
     /**
      * 导出前的处理
      *
-     * @param columnDefinition
+     * @param cellDefinitionWapper
      * @param valueStr
      * @return
      */
-    private String doTemplateExportInterceptor(ColumnDefinition columnDefinition, String valueStr) {
-        List<Object> interceptors = columnDefinition.getTemplateExportInterceptors();
+    private String doTemplateExportInterceptor(CellDefinitionWapper cellDefinitionWapper, String valueStr) {
         String valueStrToUse = valueStr;
-        if (interceptors == null || interceptors.size() == 0) {
-            return valueStrToUse;
-        }
-        List<TemplateExportInterceptor> interceptorsToUse = new ArrayList<>();
-        for (Object interceptor : interceptors) {
-            if (interceptor instanceof TemplateExportInterceptor) {
-                interceptorsToUse.add((TemplateExportInterceptor) interceptor);
-            } else if (interceptor instanceof String) {
-                TemplateExportInterceptor interceptorEntity = excleContext.getTemplateExportInterceptorMap().get(interceptor);
-                if (interceptorEntity != null) {
-                    interceptorsToUse.add((TemplateExportInterceptor) interceptor);
+        List<TemplateExportInterceptor> interceptors = excleContext.getTemplateExportInterceptors();
+        if (interceptors != null && interceptors.size() > 0) {
+            for (TemplateExportInterceptor interceptor : interceptors) {
+                valueStrToUse = interceptor.perHandle(cellDefinitionWapper, valueStrToUse);
+                if (valueStrToUse == null) {
+                    throw new ExcelException(cellDefinitionWapper.getErrMessage());
                 }
-            } else {
-                throw new ExcelException("错误的数据导出拦截处理器" + interceptor.toString());
-            }
-        }
-        //排序
-        Collections.sort(interceptorsToUse, OrderComparator.INSTANCE);
-        for (TemplateExportInterceptor interceptor : interceptorsToUse) {
-            valueStrToUse = interceptor.perHandle(columnDefinition, valueStrToUse);
-            if (valueStrToUse == null) {
-                throw new ExcelException("拦截器执行错误" + interceptor.toString());
             }
         }
         return valueStrToUse;
@@ -264,7 +249,7 @@ public class ExcleTemplateExportServiceImpl implements ExcleTemplateExportServic
 
     private String doConverter(String name, Object value) {
         String valueStr = null;
-        if (EMPTY_OBJECT == null) {
+        if (EMPTY_OBJECT == value) {
             return valueStr;
         }
         if (!excleContext.getExcleConverter().canConvertString(value.getClass())) {

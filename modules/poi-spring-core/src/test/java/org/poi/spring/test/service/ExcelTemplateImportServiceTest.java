@@ -24,9 +24,8 @@ public class ExcelTemplateImportServiceTest {
     private ExcelTemplateImportService excelTemplateImportService;
 
     @Test
-    public void createExceltest() throws FileNotFoundException {
-        ExcelImportResult excelImportResult =
-            excelTemplateImportService.readExcel(Car.class, 0, new FileInputStream("d:/workbook.xlsx"), 0, false);
+    public void readExceltest() throws FileNotFoundException {
+        ExcelImportResult excelImportResult = excelTemplateImportService.readExcel(Car.class, new FileInputStream("d:/workbooktmp.xlsx"));
         List<Car> cars = (List<Car>) excelImportResult.getBeans();
         System.out.println(cars.get(0).getName());
     }

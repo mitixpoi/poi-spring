@@ -34,14 +34,8 @@ public class ExcleTemplateExportServiceTest {
      */
     @Test
     public void createTemplateExceltest() {
-        Car car1 = new Car("info1", "22", "VN222888IIN5", "卡卡西");
-        ExcelExportResult result = ((ExcleTemplateExportServiceImpl) excleTemplateExportService).addExcelHeader(new TemplateExcleHeader() {
-            @Override
-            public String getHeader() {
-                return "汽车销售表模版";
-            }
-        }).createTemplateExcel(car1);
-
+        Car car1 = new Car("info1", "22", "VN222888IIN5", "卡卡西", "0");
+        ExcelExportResult result = ((ExcleTemplateExportServiceImpl) excleTemplateExportService).createTemplateExcel(car1);
         try {
             FileOutputStream fileOut = new FileOutputStream("d:/workbooktmp.xlsx");
             result.build().write(fileOut);

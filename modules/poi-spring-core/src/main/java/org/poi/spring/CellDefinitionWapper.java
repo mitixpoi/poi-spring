@@ -1,30 +1,18 @@
 package org.poi.spring;
 
-import org.apache.poi.hssf.util.CellReference;
 import org.poi.spring.config.ColumnDefinition;
 
 /**
- * Created by Hong.LvHang on 2017-05-09.
+ * Created by Hong.LvHang on 2017-05-18.
  */
-public class CellReferenceWapper {
-    //cell ref
-    private CellReference cellReference;
+public class CellDefinitionWapper {
     //cell definition
     private ColumnDefinition columnDefinition;
     //cell interceptor errMessage
     private String errMessage;
 
-    public CellReferenceWapper(CellReference cellReference, ColumnDefinition columnDefinition) {
+    public CellDefinitionWapper(ColumnDefinition columnDefinition) {
         this.columnDefinition = columnDefinition;
-        this.cellReference = cellReference;
-    }
-
-    public CellReference getCellReference() {
-        return cellReference;
-    }
-
-    public void setCellReference(CellReference cellReference) {
-        this.cellReference = cellReference;
     }
 
     public ColumnDefinition getColumnDefinition() {

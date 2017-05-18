@@ -1,4 +1,4 @@
-package org.poi.spring.component.support;
+package org.poi.spring.component.converter;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;

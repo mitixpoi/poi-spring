@@ -31,10 +31,10 @@ public class ExcelExportServiceTest {
      */
     @Test
     public void createExceltest() {
-        Car car1 = new Car("info1", "22", "222444r56s", "asdas");
-        Car car2 = new Car("info2", "gg", "1QAZ2WXS", "魔鬼的");
-        Car car3 = new Car("info3", "asf", "KO98XH3", "呃呃呃");
-        Car car4 = new Car("info4", "aa", "8ujnhd", "sfsdf");
+        Car car1 = new Car("info1", "22", "222444r56s", "asdas","1");
+        Car car2 = new Car("info2", "gg", "1QAZ2WXS", "魔鬼的","1");
+        Car car3 = new Car("info3", "asf", "KO98XH3", "呃呃呃","1");
+        Car car4 = new Car("info4", "aa", "8ujnhd", "sfsdf","1");
         List<Car> cars = new ArrayList<>();
         cars.add(car1);
         cars.add(car2);

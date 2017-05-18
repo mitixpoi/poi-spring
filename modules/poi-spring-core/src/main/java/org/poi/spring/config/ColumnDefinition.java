@@ -1,6 +1,5 @@
 package org.poi.spring.config;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,23 +20,10 @@ public class ColumnDefinition {
     private boolean required = false;
 
     /**
-     * 导出拦截器
-     */
-    private List<Object> templateExportInterceptors;
-    /**
-     * 导入拦截器
-     */
-    private List<Object> templateImportInterceptors;
-
-    /**
      * 表达式
      */
     private String regex;
 
-    /**
-     * 校验失败返回
-     */
-    private String validatorErrMsg;
 
     //导出时生效
     /**
@@ -66,22 +52,6 @@ public class ColumnDefinition {
      * 参数信息
      */
     private Map<String, Object> properties;
-
-    public List<Object> getTemplateExportInterceptors() {
-        return templateExportInterceptors;
-    }
-
-    public void setTemplateExportInterceptors(List<Object> templateExportInterceptors) {
-        this.templateExportInterceptors = templateExportInterceptors;
-    }
-
-    public List<Object> getTemplateImportInterceptors() {
-        return templateImportInterceptors;
-    }
-
-    public void setTemplateImportInterceptors(List<Object> templateImportInterceptors) {
-        this.templateImportInterceptors = templateImportInterceptors;
-    }
 
     public void setColumnWidth(int columnWidth) {
         this.columnWidth = columnWidth;
@@ -127,13 +97,6 @@ public class ColumnDefinition {
         this.regex = regex;
     }
 
-    public String getValidatorErrMsg() {
-        return validatorErrMsg;
-    }
-
-    public void setValidatorErrMsg(String validatorErrMsg) {
-        this.validatorErrMsg = validatorErrMsg;
-    }
 
     public Integer getColumnWidth() {
         return columnWidth;

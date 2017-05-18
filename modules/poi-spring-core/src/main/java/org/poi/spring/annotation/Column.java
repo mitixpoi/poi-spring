@@ -38,6 +38,4 @@ public @interface Column {
 
     String defauleValue() default "";
 
-
-
 }

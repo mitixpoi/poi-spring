@@ -133,7 +133,13 @@ public class ExcelWorkBookBeandefinition implements InitializingBean {
         //todo  可以做一些有效性的判断
         Assert.hasNoColumn(this.excleName, this.columnDefinitions);
         setDefaultFields();
+        registryDefaultInterceptor();
         mergeProperties(this.getDefaultProperties(), this.getColumnDefinitions());
+    }
+
+    //注册默认的拦截器
+    private void registryDefaultInterceptor() {
+
     }
 
     private void setDefaultFields() {
@@ -141,7 +147,6 @@ public class ExcelWorkBookBeandefinition implements InitializingBean {
         if (this.getSheetName() == null || "".equals(this.getSheetName())) {
             this.setSheetName("sheet" + this.sheetIndex);
         }
-
     }
 
     //进行属性合并

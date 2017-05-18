@@ -14,7 +14,6 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcelHeader;
 import org.poi.spring.component.ExcleContext;
-import org.poi.spring.component.ExcleConverter;
 import org.poi.spring.component.ReportExcleHeader;
 import org.poi.spring.component.TemplateExcleHeader;
 import org.poi.spring.config.ColumnDefinition;
@@ -41,8 +40,6 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     @Autowired
     private ExcleContext excleContext;
 
-    @Autowired
-    private ExcleConverter excleConverter;
 
     private ExcelHeader excelHeader;
 
@@ -168,10 +165,10 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             Object value = ReflectUtil.getProperty(bean, name);
             String valueStr = "";
             if (null != value) {
-                if (!excleConverter.canConvertString(value.getClass())) {
+                if (!excleContext.getExcleConverter().canConvertString(value.getClass())) {
                     throw new ExcelException("无法转换成字符串,字段名name" + name);
                 }
-                valueStr = excleConverter.convert(value, String.class);
+                valueStr = excleContext.getExcleConverter().convert(value, String.class);
             }
             Cell cell = row.createCell(i);
             //            CellUtil.setCellStyleProperties(cell, columnDefinition.getProperties());

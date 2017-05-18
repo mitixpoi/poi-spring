@@ -18,7 +18,7 @@ public class Car {
     @Column(title = "车龄")
     private String age;
 
-    @Column(title = "车架号", align = HorizontalAlignment.RIGHT)
+    @Column(title = "车架号", align = HorizontalAlignment.RIGHT, required = true)
     private String vin;
 
     @Column(title = "客户")
@@ -32,11 +32,12 @@ public class Car {
     }
 
 
-    public Car(String name, String age, String vin, String customerName) {
+    public Car(String name, String age, String vin, String customerName,String customerStatus) {
         this.name = name;
         this.age = age;
         this.vin = vin;
         this.customerName = customerName;
+        this.customerStatus = customerStatus;
     }
 
     public String getVin() {

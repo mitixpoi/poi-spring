@@ -12,7 +12,7 @@ import org.poi.spring.CellReferenceWapper;
 import org.poi.spring.ExcleWapper;
 import org.poi.spring.ReflectUtil;
 import org.poi.spring.component.ExcleContext;
-import org.poi.spring.component.ExcleConverter;
+import org.poi.spring.component.interceptor.TemplateImportInterceptor;
 import org.poi.spring.config.ColumnDefinition;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.poi.spring.exception.ExcelException;
@@ -36,9 +36,6 @@ import java.util.Map;
 public class ExcelTemplateImportServiceImpl implements ExcelTemplateImportService {
     @Autowired
     private ExcleContext excleContext;
-
-    @Autowired
-    private ExcleConverter excleConverter;
 
     /**
      * 格式化信息
@@ -66,7 +63,7 @@ public class ExcelTemplateImportServiceImpl implements ExcelTemplateImportServic
 
             ExcleWapper wapper = new ExcleWapper(workbook, sheet);
             //标题之前的数据处理 目前没有用处  所以不处理
-            //            List<List<Object>> header = readHeader(excelWorkBookBeandefinition, sheet, titleIndex);
+            //List<List<Object>> header = readHeader(excelWorkBookBeandefinition, sheet, titleIndex);
             //根据模版判断tital的index
             int titleIndex;
             if (excelWorkBookBeandefinition.getHeader() != null && excelWorkBookBeandefinition.getHeader() != "") {
@@ -104,15 +101,12 @@ public class ExcelTemplateImportServiceImpl implements ExcelTemplateImportServic
             //cell封装对象，可以获取cell的相关信息
             CellReference cellRef = new CellReference(row.getRowNum(), cell.getColumnIndex());
             String text = formatter.formatCellValue(cell);
-            String fieldName = null;
             for (ColumnDefinition columnDefinition : columnDefinitions) {
                 if (columnDefinition.getTitle().equals(text)) {
-                    fieldName = columnDefinition.getName();
+                    map.put(cell.getColumnIndex(), new CellReferenceWapper(cellRef, columnDefinition));
                     break;
                 }
-
             }
-            map.put(cell.getColumnIndex(), new CellReferenceWapper(cellRef, text, fieldName));
         }
         return map;
     }
@@ -123,7 +117,6 @@ public class ExcelTemplateImportServiceImpl implements ExcelTemplateImportServic
         int totalNum = rowNum - titleIndex;
         List<T> listBean = new ArrayList<T>(totalNum);
         for (int i = titleIndex + 1; i <= rowNum; i++) {
-
             Object bean = readRow(excelWorkBookBeandefinition, wapper, i, titleWapperMap);
             listBean.add((T) bean);
         }
@@ -135,28 +128,43 @@ public class ExcelTemplateImportServiceImpl implements ExcelTemplateImportServic
         //创建注册时配置的bean类型
         Class<?> dataClass = excelWorkBookBeandefinition.getDataClass();
         Object bean = ReflectUtil.newInstance(dataClass);
-        for (Cell cell : row) {
+        //默认的Cell迭代器回会过滤空格  按照传统方式进行循环
+        int size = titleWapperMap.size();
+        for (int index = 0; index < size; index++) {
+            Cell cell = row.getCell(index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
             CellReferenceWapper titleWapper = titleWapperMap.get(cell.getColumnIndex());
             String text = formatter.formatCellValue(cell);
+            //导入先拦截再转换
+            doTemplateImportInterceptor(titleWapper, text);
             Object value = doConverter(bean, titleWapper, text);
-            //todo 进行导入前的拦截处理
-            ReflectUtil.setProperty(bean, titleWapper.getFieldName(), value);
+
+            ReflectUtil.setProperty(bean, titleWapper.getColumnDefinition().getName(), value);
         }
         return bean;
+    }
+
+    private void doTemplateImportInterceptor(CellReferenceWapper titleWapper, String value) {
+        String valueToUse = value;
+        List<TemplateImportInterceptor> interceptors = excleContext.getTemplateImportInterceptors();
+        if (interceptors != null && interceptors.size() > 0) {
+            //执行操作
+            for (TemplateImportInterceptor interceptor : interceptors) {
+                if (!interceptor.perHandle(titleWapper, valueToUse)) {
+                    throw new ExcelException(titleWapper.getErrMessage());
+                }
+            }
+        }
     }
 
     private Object doConverter(Object bean, CellReferenceWapper titleWapper, String text) {
         if (text == null) {
             return null;
         }
-        Class<?> fieldClass = ReflectUtil.getPropertyType(bean, titleWapper.getFieldName());
-        if (!excleConverter.canConvert(TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(fieldClass))) {
-            throw new ExcelException("字符串无法转换成对象值field=" + titleWapper.getFieldName());
+        Class<?> fieldClass = ReflectUtil.getPropertyType(bean, titleWapper.getColumnDefinition().getName());
+        if (!excleContext.getExcleConverter().canConvert(TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(fieldClass))) {
+            throw new ExcelException("字符串无法转换成对象值field=" + titleWapper.getColumnDefinition().getName());
         }
-        return excleConverter.convert(text, fieldClass);
+        return excleContext.getExcleConverter().convert(text, fieldClass);
     }
 
-    private List<List<Object>> readHeader(ExcelWorkBookBeandefinition excelWorkBookBeandefinition, Sheet sheet, int titleIndex) {
-        return null;
-    }
 }

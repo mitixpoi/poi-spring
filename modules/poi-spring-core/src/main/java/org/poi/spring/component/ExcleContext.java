@@ -1,13 +1,19 @@
 package org.poi.spring.component;
 
 import org.poi.spring.PoiConstant;
+import org.poi.spring.component.interceptor.TemplateExportInterceptor;
+import org.poi.spring.component.interceptor.TemplateImportInterceptor;
 import org.poi.spring.config.ExcelWorkBookBeandefinition;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.core.OrderComparator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,14 +28,17 @@ public class ExcleContext extends ApplicationObjectSupport {
     /**
      * 默认设置的倒入拦截器
      */
-    private final Map<String, TemplateImportInterceptor> templateImportInterceptorMap = new HashMap<>();
+    private final List<TemplateImportInterceptor> templateImportInterceptors = new ArrayList<>();
+
     /**
      * 默认设置的导出拦截器
      */
-    private final Map<String, TemplateExportInterceptor> templateExportInterceptorMap = new HashMap<>();
-
+    private final List<TemplateExportInterceptor> templateExportInterceptors = new ArrayList<>();
+    /**
+     * 类型转换器
+     */
     @Autowired
-    private ExcleConverter excleConverter;
+    private DefaultExcleConverter excleConverter;
 
     @Autowired(required = false)
     private ExcelDictService excelDictService;
@@ -45,20 +54,24 @@ public class ExcleContext extends ApplicationObjectSupport {
             }
         }
 
-        String[] templateImportInterceptors = getApplicationContext().getBeanNamesForType(TemplateImportInterceptor.class);
-        if (templateImportInterceptors != null && templateImportInterceptors.length > 0) {
-            for (String beanName : templateImportInterceptors) {
+        String[] importInterceptors = getApplicationContext().getBeanNamesForType(TemplateImportInterceptor.class);
+        if (importInterceptors != null && importInterceptors.length > 0) {
+            for (String beanName : importInterceptors) {
                 TemplateImportInterceptor templateImportInterceptor = (TemplateImportInterceptor) getApplicationContext().getBean(beanName);
-                templateImportInterceptorMap.put(beanName, templateImportInterceptor);
+                templateImportInterceptors.add(templateImportInterceptor);
             }
+            //排序
+            Collections.sort(templateImportInterceptors, OrderComparator.INSTANCE);
         }
 
-        String[] templateExportInterceptors = getApplicationContext().getBeanNamesForType(TemplateExportInterceptor.class);
-        if (templateExportInterceptors != null && templateExportInterceptors.length > 0) {
-            for (String beanName : templateExportInterceptors) {
+        String[] exportInterceptors = getApplicationContext().getBeanNamesForType(TemplateExportInterceptor.class);
+        if (exportInterceptors != null && exportInterceptors.length > 0) {
+            for (String beanName : exportInterceptors) {
                 TemplateExportInterceptor templateExportInterceptor = (TemplateExportInterceptor) getApplicationContext().getBean(beanName);
-                templateExportInterceptorMap.put(beanName, templateExportInterceptor);
+                templateExportInterceptors.add(templateExportInterceptor);
             }
+            //排序
+            Collections.sort(templateExportInterceptors, OrderComparator.INSTANCE);
         }
     }
 
@@ -78,19 +91,19 @@ public class ExcleContext extends ApplicationObjectSupport {
         this.excelDictService = excelDictService;
     }
 
-    public ExcleConverter getExcleConverter() {
+    public DefaultExcleConverter getExcleConverter() {
         return excleConverter;
     }
 
-    public void setExcleConverter(ExcleConverter excleConverter) {
+    public void setExcleConverter(DefaultExcleConverter excleConverter) {
         this.excleConverter = excleConverter;
     }
 
-    public Map<String, TemplateImportInterceptor> getTemplateImportInterceptorMap() {
-        return templateImportInterceptorMap;
+    public List<TemplateImportInterceptor> getTemplateImportInterceptors() {
+        return templateImportInterceptors;
     }
 
-    public Map<String, TemplateExportInterceptor> getTemplateExportInterceptorMap() {
-        return templateExportInterceptorMap;
+    public List<TemplateExportInterceptor> getTemplateExportInterceptors() {
+        return templateExportInterceptors;
     }
 }
